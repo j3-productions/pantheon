@@ -13,6 +13,24 @@
     ?-    -.query
         %key
       (pairs ['key' s+key.query]~)
+      ::
+        %files
+      %-  pairs
+      %+  turn  (tap:((on cid:pantheon file:pantheon) gth) files.query)
+      |=  [=cid:pantheon =file:pantheon]
+      :-  cid
+      %-  pairs
+      :~  ['cid' s+cid.file]
+          ['name' s+name.file]
+          :+  'tags'  %a
+          %+  turn  tags.file
+          |=  [=tag:pantheon]
+          %-  pairs
+          :~  ['id' s+id.tag]
+              ['name' s+name.tag]
+              ['slatename' s+slatename.tag]
+          ==
+      ==
     ==
   --
 ++  grad  %noun

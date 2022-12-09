@@ -61,6 +61,9 @@
   ?+    path  (on-peek:default path)
       [%x %key ~]
     ``pantheon-query+!>(`query`[%key key])
+    ::
+      [%x %files ~]
+    ``pantheon-query+!>(`query`[%files files])
   ==
 ::
 ++  on-watch  on-watch:default

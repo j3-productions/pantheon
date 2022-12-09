@@ -2,8 +2,8 @@
 ::  sur/pantheon
 ::
 |%
-+$  key   @t
-+$  cid   @t
++$  key  @t
++$  cid  @t
 +$  tag
   $:  id=@t
       name=@t
@@ -45,6 +45,7 @@
 +$  files  ((mop cid file) gth)
 +$  query
   $%  [%key =key]
+      [%files =files]
   ==
 +$  action
   $%  [%add-key =key]
