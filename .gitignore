@@ -1,0 +1,15 @@
+# OS Files #
+**/.DS_Store
+
+# Env Files #
+**/*.local
+.urb
+
+# Session Files #
+**/*.vim
+**/*.swp
+**/*.swo
+
+# Utility Files (see: https://github.com/sidnym-ladrut/desk) #
+desk/.*
+desk/cur
