@@ -10,6 +10,7 @@
     %.  jon
     %-  of
     :~  [%add-key (ot ~[key+so])]
+        [%sync-files (ul ~)]
     ==
   --
 ++  grow

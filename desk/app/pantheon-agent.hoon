@@ -1,6 +1,8 @@
 ::
 ::  app/pantheon-agent
 ::
+::  TODO: Add permissions surrounding the 'key' value.
+::
 /-  *pantheon
 /+  default-agent, dbug
 ::
@@ -52,6 +54,15 @@
     ?-    -.act
         %add-key
       `this(key key.act)
+    ::
+        %sync-files
+      =/  http-files=request:http
+        :^  %'GET'  'https://slate.host/api/v3/get'
+        ~[['content-type' 'application/json'] ['Authorization' key]]  ~
+      :_  this  :_  ~
+      :*  %pass  /files  %arvo  %i
+          %request  http-files  *outbound-config:iris
+      ==
     ==
   ==
 ::
@@ -61,7 +72,7 @@
   ?+    path  (on-peek:default path)
       [%x %key ~]
     ``pantheon-query+!>(`query`[%key key])
-    ::
+  ::
       [%x %files ~]
     ``pantheon-query+!>(`query`[%files files])
   ==
@@ -72,7 +83,31 @@
 ::
 ++  on-agent  on-agent:default
 ::
-++  on-arvo   on-arvo:default
+++  on-arvo
+  |=  [=wire =sign-arvo]
+  ^-  (quip card _this)
+  ?+    wire  (on-arvo:default wire sign-arvo)
+      [%files ~]
+    ?+    sign-arvo  (on-arvo:default wire sign-arvo)
+        [%iris %http-response %finished *]
+      =+  res=full-file.client-response.sign-arvo
+      ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
+      =+  jon=(de-json:html `@t`q.data.u.res)
+      ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
+      ::  TODO: Is there a better way to do this (maybe using marks)?
+      ?>  ?=([%o *] u.jon)
+      =+  col=(~(got by p.u.jon) 'collections')
+      ?>  ?=([%a *] col)
+      =+  obj=(snag 0 p.col)
+      ?>  ?=([%o *] obj)
+      =+  files=(~(got by p.obj) 'objects')
+      ::  TODO: Need to now churn these files into compliant data
+      ::  structure, i.e. something resembling `((mop cid file) gth)`
+      ::  TODO: Figure out how to merge incoming `mop` with existing
+      ::  `mop` of CIDs (just replace it?, keep the overlap?)
+      ~&(files `this)
+    ==
+  ==
 ::
 ++  on-fail   on-fail:default
 --

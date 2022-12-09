@@ -49,6 +49,7 @@
   ==
 +$  action
   $%  [%add-key =key]
+      [%sync-files ~]
   ==
 :: +$  update
 ::   $%  :: TODO
