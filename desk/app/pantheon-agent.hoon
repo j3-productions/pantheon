@@ -60,8 +60,8 @@
         :^  %'GET'  'https://slate.host/api/v3/get'
         ~[['content-type' 'application/json'] ['Authorization' key]]  ~
       :_  this  :_  ~
-      :*  %pass  /files  %arvo  %i
-          %request  http-files  *outbound-config:iris
+      :*  %pass     /files/(scot %tas merge.act)  %arvo  %i
+          %request  http-files                    *outbound-config:iris
       ==
     ==
   ==
@@ -87,7 +87,7 @@
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
   ?+    wire  (on-arvo:default wire sign-arvo)
-      [%files ~]
+      [%files @ ~]
     ?+    sign-arvo  (on-arvo:default wire sign-arvo)
         [%iris %http-response %finished *]
       =+  res=full-file.client-response.sign-arvo
@@ -106,6 +106,7 @@
       ::  `mop` of CIDs (just replace it?, keep the overlap?)
       ::  TODO: Get rid of empty entry that's introduced in this list
       ::  (perhaps by the initial bunt?)
+      =/  merge=merge-strategy  %theirs  :: +<.wire
       =;  new-files=_files  `this(files new-files)
       %+  gas:on-files  *_files
       %-  turn  :_  |=([=file] [cid.file file])

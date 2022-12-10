@@ -4,6 +4,7 @@
 |%
 +$  key  @t
 +$  cid  @t
++$  merge-strategy  ?(%ours %theirs %union %intersect)
 +$  tag
   $:  id=@t
       name=@t
@@ -42,14 +43,14 @@
 ::    data=(unit ?)
 ::    old-data=(unit ?)
   ==
-+$  files  ((mop cid file) gth)
++$  files        ((mop cid file) gth)
 +$  query
   $%  [%key =key]
       [%files =files]
   ==
 +$  action
   $%  [%add-key =key]
-      [%sync-files ~]
+      [%sync-files merge=merge-strategy]
   ==
 :: +$  update
 ::   $%  :: TODO
