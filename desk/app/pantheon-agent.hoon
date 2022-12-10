@@ -4,7 +4,7 @@
 ::  TODO: Add permissions surrounding the 'key' value.
 ::
 /-  *pantheon
-/+  default-agent, dbug
+/+  default-agent, dbug, *pantheon
 ::
 ::
 |%
@@ -96,16 +96,29 @@
       ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
       ::  TODO: Is there a better way to do this (maybe using marks)?
       ?>  ?=([%o *] u.jon)
-      =+  col=(~(got by p.u.jon) 'collections')
-      ?>  ?=([%a *] col)
-      =+  obj=(snag 0 p.col)
-      ?>  ?=([%o *] obj)
-      =+  files=(~(got by p.obj) 'objects')
-      ::  TODO: Need to now churn these files into compliant data
-      ::  structure, i.e. something resembling `((mop cid file) gth)`
+      =+  cols=(~(got by p.u.jon) 'collections')
+      ?>  ?=([%a *] cols)
+      =+  col=(snag 0 p.cols)
+      ?>  ?=([%o *] col)
+      =+  objs=(~(got by p.col) 'objects')
+      ?>  ?=([%a *] objs)
       ::  TODO: Figure out how to merge incoming `mop` with existing
       ::  `mop` of CIDs (just replace it?, keep the overlap?)
-      ~&(files `this)
+      ::  TODO: Get rid of empty entry that's introduced in this list
+      ::  (perhaps by the initial bunt?)
+      =;  new-files=_files  `this(files new-files)
+      %+  gas:on-files  *_files
+      %-  turn  :_  |=([=file] [cid.file file])
+      %+  turn  p.objs
+      =,  dejs:format
+      |=  obj=json
+      ;;  file
+      %.  obj
+      %-  ot
+      :~  [%cid so]
+          [%name so]
+          [%tags (ar (ot ~[id+so name+so slatename+so]))]
+      ==
     ==
   ==
 ::

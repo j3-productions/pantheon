@@ -7,11 +7,15 @@
     =,  dejs:format
     |=  jon=json
     ;;  action:pantheon
-    %.  jon
-    %-  of
-    :~  [%add-key (ot ~[key+so])]
-        [%sync-files (ul ~)]
-    ==
+    *action:pantheon
+    ::  FIXME: Getting a `mull-grow` here, probably because the
+    ::  `%sync-files` case is incorrect.
+    ::
+    ::  %.  jon
+    ::  %-  of
+    ::  :~  [%add-key (ot ~[key+so])]
+    ::      [%sync-files (ul ~)]
+    ::  ==
   --
 ++  grow
   |%

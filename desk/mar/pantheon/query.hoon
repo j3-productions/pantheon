@@ -1,4 +1,5 @@
 /-  pantheon
+/+  *pantheon
 |_  =query:pantheon
 ++  grab
   |%
@@ -16,7 +17,7 @@
       ::
         %files
       %-  pairs
-      %+  turn  (tap:((on cid:pantheon file:pantheon) gth) files.query)
+      %+  turn  (tap:on-files files.query)
       |=  [=cid:pantheon =file:pantheon]
       :-  cid
       %-  pairs
