@@ -5,55 +5,99 @@ import {
 } from 'react-router-dom';
 import api from './api';
 
-const APP_PATH: string = "/apps/pantheon";
-
 export function App() {
-  const [apiData, setApiData] = useState({key: "", valid: false});
+  const [apiData, setApiData] = useState({key: "", isSet: false});
 
-  // TODO: How do we always insist on returning to the main path
-  // if the user hasn't provided an API key?
+  const KeyForm = () => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-  // TODO: Needs to be a simple form awaiting API key, hopefully w/
-  // v. simple validation. This should redirect to '/' after a
-  // successful poke to restart the process.
-  const KeyForm = () => (<h1 className="text-3xl">Need a key!</h1>);
-  // TODO: Just needs to have a list of files associated with the
-  // user as <li>.
-  const ApiForm = () => {
-    const abc: object = useLoaderData();
-    console.log(abc);
+      const formData = new FormData(event.currentTarget);
+      const key: string = formData.get("key");
+
+      api.poke<any>({
+        app: "pantheon-agent",
+        mark: "pantheon-action",
+        json: {"add-key": {"key": key}},
+      }).then(
+        setApiData({key: "", isSet: false})
+      );
+    };
 
     return (
-      <h1 className="text-3xl">Have key {apiData.key}</h1>
+      <React.Fragment>
+        <h1 className="text-3xl">Please enter your Slate API key:</h1>
+        <form onSubmit={handleSubmit}>
+          <label>
+            <input className="border border-black border-solid" name="key" type="text" />
+          </label>
+          <button type="submit">Submit</button>
+        </form>
+      </React.Fragment>
+    );
+  };
+
+  const ApiForm = () => {
+    // {cid: {cid: '', name: '', tags: [{name: '', id: '', slatename: ''}]}, ...}
+    const files: object = useLoaderData();
+    return (
+      <React.Fragment>
+        <h1 className="text-3xl">File List</h1>
+        {Object.values(files).map(file => (
+          <React.Fragment key={file.cid}>
+            <h2 className="text-xl">{file.name}</h2>
+            {/*TODO: This doesn't always work because it will only preview native
+            content. Links will need to be handled separately (just take from link
+            metadata provided by Slate).*/}
+            <img src={`https://slate.textile.io/ipfs/${file.cid}`} />
+          </React.Fragment>
+        ))}
+      </React.Fragment>
     );
   };
 
   const router = createBrowserRouter([
     { // redirect if API key isn't set; fetch API key first
-      path: APP_PATH,
-      loader: async () => {
-        if(apiData.key === "") {
-          // const curKey: string = await api.scry<string>(
-          //   {app: 'pantheon-agent', path: '/key'}).then(() =>
-          //     "cool"
-          // );
-          const curKey: string = "bad";
-          return setApiData({key: curKey, valid: true});
+      path: "/apps/pantheon/",
+      loader: async ({request}) => {
+        const url: string = (new URL(request.url)).pathname;
+        if(!apiData.isSet) {
+          const urbKey: string = await api.scry<object>(
+            {app: 'pantheon-agent', path: '/key'}).then(
+            ({key}) => key);
+          return setApiData({key: urbKey, isSet: true});
+        } else if(apiData.key === "" && !url.match(/\/apps\/pantheon\/key.*/)) {
+          return redirect("/apps/pantheon/key");
+        } else if(apiData.key !== "" && !url.match(/\/apps\/pantheon\/api.*/)) {
+          return redirect("/apps/pantheon/api");
         } else {
-          return redirect(apiData.valid ? "./api" : "./key");
+          return 0;
         }
       },
-    },
-    { // simple form that takes an API key and pokes the back-end agent with it
-      path: [APP_PATH, "key"].join("/"),
-      element: <KeyForm />,
-    },
-    { // simple view that shows all files associated with an API key
-      path: [APP_PATH, "api"].join("/"),
-      element: <ApiForm />,
-      loader: async () => (
-        json({files: ["a", "b", "c"]}, {status: 200})
-      ),
+      children: [
+        {
+          path: "key",
+          element: <KeyForm />,
+        },
+        {
+          path: "api",
+          element: <ApiForm />,
+          loader: async () => (
+            api.poke<any>({
+              app: "pantheon-agent",
+              mark: "pantheon-action",
+              json: {"sync-files": {"merge": "theirs"}},
+            }).then((result: number) =>
+              new Promise(resolve => {
+                setTimeout(resolve, 2000);
+                return result;
+              })
+            ).then((result: number) => (
+              api.scry<object[]>({app: 'pantheon-agent', path: '/files'})
+            ))
+          ),
+        },
+      ],
     },
   ]);
 
@@ -61,40 +105,3 @@ export function App() {
     <RouterProvider router={router} />
   );
 }
-
-// export function App() {
-//   const [apps, setApps] = useState<Charges>();
-//
-//   useEffect(() => {
-//     async function init() {
-//       const charges = (await api.scry<ChargeUpdateInitial>(scryCharges)).initial;
-//       setApps(charges);
-//     }
-//
-//     init();
-//   }, []);
-//
-//   return (
-//     <main className="flex items-center justify-center min-h-screen">
-//       <div className="max-w-md space-y-6 py-20">
-//         <h1 className="text-3xl font-bold">Welcome to pantheon</h1>
-//         <p>Here&apos;s your urbit&apos;s installed apps:</p>
-//         {apps && (
-//           <ul className="space-y-4">
-//             {Object.entries(apps).map(([desk, app]) => (
-//               <li key={desk} className="flex items-center space-x-3 text-sm leading-tight">
-//                 <AppTile {...app} />
-//                 <div className="flex-1 text-black">
-//                   <p>
-//                     <strong>{app.title || desk}</strong>
-//                   </p>
-//                   {app.info && <p>{app.info}</p>}
-//                 </div>
-//               </li>
-//             ))}
-//           </ul>
-//         )}
-//       </div>
-//     </main>
-//   );
-// }
