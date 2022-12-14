@@ -1,8 +1,5 @@
 import React, { useState, useContext } from 'react';
-import {
-  json, redirect, useLoaderData,
-  createBrowserRouter, RouterProvider,
-} from 'react-router-dom';
+import { redirect, useLoaderData, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import api from './api';
 
 export function App() {
@@ -13,13 +10,13 @@ export function App() {
       event.preventDefault();
 
       const formData = new FormData(event.currentTarget);
-      const key: string = formData.get("key");
+      const key = formData.get("key");
 
       api.poke<any>({
         app: "pantheon-agent",
         mark: "pantheon-action",
-        json: {"add-key": {"key": key}},
-      }).then(
+        json: {"add-key": {"key": key as string}},
+      }).then((result: number) =>
         setApiData({key: "", isSet: false})
       );
     };
@@ -39,7 +36,7 @@ export function App() {
 
   const ApiForm = () => {
     // {cid: {cid: '', name: '', tags: [{name: '', id: '', slatename: ''}]}, ...}
-    const files: object = useLoaderData();
+    const files = useLoaderData() as any[]; // FIXME: Need real type info here.
     return (
       <React.Fragment>
         <h1 className="text-3xl">File List</h1>
@@ -64,7 +61,7 @@ export function App() {
         if(!apiData.isSet) {
           const urbKey: string = await api.scry<object>(
             {app: 'pantheon-agent', path: '/key'}).then(
-            ({key}) => key);
+            ({key}) => key); // FIXME: Need real type info here.
           return setApiData({key: urbKey, isSet: true});
         } else if(apiData.key === "" && !url.match(/\/apps\/pantheon\/key.*/)) {
           return redirect("/apps/pantheon/key");
@@ -92,9 +89,9 @@ export function App() {
                 setTimeout(resolve, 2000);
                 return result;
               })
-            ).then((result: number) => (
-              api.scry<object[]>({app: 'pantheon-agent', path: '/files'})
-            ))
+            ).then((result: number) =>
+              api.scry<any[]>({app: 'pantheon-agent', path: '/files'})
+            )
           ),
         },
       ],
