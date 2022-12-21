@@ -6,9 +6,9 @@
 /* Internal Types (React only) */
 /*******************************/
 
-export interface Key {
-  key: string;
-}
+// export interface Key {
+//   key: string;
+// }
 
 // export interface Board {
 //   name: string;
@@ -22,25 +22,27 @@ export interface Key {
 /* Scry Types (Urbit->React) */
 /****************************/
 
-// export type ScryBoards = {
-//   'all-boards': {
-//     boards: Omit<Board, 'host'>[];
-//     host: string;
-//   }[];
-// };
-//
-// export type ScryQuestions = {
-//   questions: ScryQuestion[];
-// };
-//
-// export type ScryThread = ScryQuestion & {
-//   answers: ScryAnswer[];
-//   best: number | undefined;
-// };
+export interface ScryKey {
+  key: string;
+}
+
+export interface ScryTag {
+  id: string;
+  name: string;
+  slatename: string;
+}
+
+export interface ScryFile {
+  cid: string;
+  name: string;
+  tags: ScryTag[];
+}
 
 /*****************************/
 /* Poke Types (React->Urbit) */
 /*****************************/
+
+export interface PokeKey extends ScryKey {}
 
 // export interface PokeBoard {
 //   name: string;
