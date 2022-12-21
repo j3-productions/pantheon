@@ -3,10 +3,11 @@ import { useForm } from 'react-hook-form';
 import { redirect, useLoaderData, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid'
 import * as Type from './types/pantheon';
+import * as Const from './constants';
 import api from './api';
 
 export function App() {
-  const [apiData, setApiData] = useState({key: "", isSet: false});
+  const [apiKey, setApiKey] = useState<string | undefined>(undefined);
 
   const KeyForm = () => {
     const {register, handleSubmit, formState: {errors}} = useForm<Type.PokeKey>();
@@ -16,11 +17,9 @@ export function App() {
         mark: "pantheon-action",
         json: {"add-key": {"key": key as string}},
       }).then((result: number) =>
-        setApiData({key: "", isSet: false})
+        setApiKey(undefined)
       );
     };
-
-    const keyRegex: RegExp = /^SLA([a-f0-9]{8})-([a-f0-9]{4})-([a-f0-9]{4})-([a-f0-9]{4})-([a-f0-9]{12})TE$/;
 
     return (
       <React.Fragment>
@@ -33,7 +32,7 @@ export function App() {
           <div className="flex flex-row justify-center">
             <input type="text" autoComplete="off"
               placeholder="API Key, e.g.: SLAabcdef12-1234-abcd-1234-abcdef123456TE"
-              {...register("key", {required: true, pattern: keyRegex})}
+              {...register("key", {required: true, pattern: Const.KEY_REGEX})}
               className={`w-9/12 py-2 px-3 bg-bgp1
                 border border-bgp2 rounded-l-lg
                 ring-bgs2 ring-inset focus:outline-none focus:ring-2`} />
@@ -59,7 +58,6 @@ export function App() {
   };
 
   const ApiForm = () => {
-    // {cid: {cid: '', name: '', tags: [{name: '', id: '', slatename: ''}]}, ...}
     const files = useLoaderData() as Type.ScryFile[];
     return (
       <React.Fragment>
@@ -79,18 +77,18 @@ export function App() {
 
   const router = createBrowserRouter([
     { // redirect if API key isn't set; fetch API key first
-      path: "/apps/pantheon/",
+      path: Const.APP_PATH,
       loader: async ({request}) => {
         const url: string = (new URL(request.url)).pathname;
-        if(!apiData.isSet) {
+        if(apiKey === undefined) {
           const urbKey: string = await api.scry<Type.ScryKey>(
             {app: 'pantheon-agent', path: '/key'}).then(
             ({key}) => key);
-          return setApiData({key: urbKey, isSet: true});
-        } else if(apiData.key === "" && !url.match(/\/apps\/pantheon\/key.*/)) {
-          return redirect("/apps/pantheon/key");
-        } else if(apiData.key !== "" && !url.match(/\/apps\/pantheon\/api.*/)) {
-          return redirect("/apps/pantheon/api");
+          return setApiKey(urbKey);
+        } else if(apiKey === "" && !url.match(Const.KEY_PATH_REGEX)) {
+          return redirect(Const.KEY_PATH);
+        } else if(apiKey !== "" && !url.match(Const.API_PATH_REGEX)) {
+          return redirect(Const.API_PATH);
         } else {
           return 0;
         }
