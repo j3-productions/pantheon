@@ -1,18 +1,16 @@
 import React, { useState, useContext } from 'react';
-import {
-  redirect, useLoaderData,
-  createBrowserRouter, RouterProvider
-} from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { redirect, useLoaderData, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid'
+import * as Type from './types/pantheon';
 import api from './api';
 
 export function App() {
   const [apiData, setApiData] = useState({key: "", isSet: false});
 
   const KeyForm = () => {
-    const {register, handleSubmit, formState: {errors}} = useForm();
-    const onSubmit = ({key}) => {
+    const {register, handleSubmit, formState: {errors}} = useForm<Type.PokeKey>();
+    const onSubmit = ({key}: Type.PokeKey) => {
       api.poke<any>({
         app: "pantheon-agent",
         mark: "pantheon-action",
@@ -33,7 +31,7 @@ export function App() {
         </div>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-row justify-center">
-            <input type="text" autocomplete="off"
+            <input type="text" autoComplete="off"
               placeholder="API Key, e.g.: SLAabcdef12-1234-abcd-1234-abcdef123456TE"
               {...register("key", {required: true, pattern: keyRegex})}
               className={`w-9/12 py-2 px-3 bg-bgp1
@@ -62,7 +60,7 @@ export function App() {
 
   const ApiForm = () => {
     // {cid: {cid: '', name: '', tags: [{name: '', id: '', slatename: ''}]}, ...}
-    const files = useLoaderData() as any[]; // FIXME: Need real type info here.
+    const files = useLoaderData() as Type.ScryFile[];
     return (
       <React.Fragment>
         <h1 className="text-3xl">File List</h1>
@@ -85,9 +83,9 @@ export function App() {
       loader: async ({request}) => {
         const url: string = (new URL(request.url)).pathname;
         if(!apiData.isSet) {
-          const urbKey: string = await api.scry<object>(
+          const urbKey: string = await api.scry<Type.ScryKey>(
             {app: 'pantheon-agent', path: '/key'}).then(
-            ({key}) => key); // FIXME: Need real type info here.
+            ({key}) => key);
           return setApiData({key: urbKey, isSet: true});
         } else if(apiData.key === "" && !url.match(/\/apps\/pantheon\/key.*/)) {
           return redirect("/apps/pantheon/key");
@@ -115,8 +113,8 @@ export function App() {
                 setTimeout(resolve, 2000);
                 return result;
               })
-            ).then((result: number) =>
-              api.scry<any[]>({app: 'pantheon-agent', path: '/files'})
+            ).then((result: any) =>
+              api.scry<Type.ScryFile[]>({app: 'pantheon-agent', path: '/files'})
             )
           ),
         },
