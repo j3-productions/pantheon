@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useSearchParams, useLoaderData } from 'react-router-dom';
 import { NavBar } from '../components/NavBar';
 import * as Type from '../types/pantheon';
 import api from '../api';
 
 export const Gallery = () => {
   const files = useLoaderData() as Type.ScryFile[];
-  const [search, setSearch] = useState<string>("");
+  const [query, setQuery] = useState<string>("");
+  // const [query, setQuery] = useSearchParams<string>("");
 
   // TODO: Add panes for each file entry
   // TODO: Add a fake first pane to add new entries
@@ -15,7 +16,7 @@ export const Gallery = () => {
 
   return (
     <React.Fragment>
-      <NavBar content={search} setContent={setSearch} />
+      <NavBar query={query} setQuery={setQuery} />
       <h1 className="text-3xl">File List</h1>
       {Object.values(files).map(file => (
         <React.Fragment key={file.cid}>

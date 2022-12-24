@@ -21,6 +21,14 @@ nav {
 /*****************/
 /* Form Elements */
 
+/*
+div:has(> *.flex-1) {
+    @apply flex-1 min-w-0;
+}
+*/
+div.input-group {
+    @apply flex flex-row justify-center;
+}
 div:not(.input-group) > :is(input, button) {
     @apply rounded-lg;
 }
@@ -41,6 +49,6 @@ button,
   [type='submit'] {
     @apply flex-none py-2 px-3 bg-bgs1 border-2 border-bgs2/0 hover:border-bgs2/100 transition-colors;
 }
-button > svg {
+button svg {
     @apply h-6 w-6 sm:h-5 sm:w-5 text-fgp1;
 }

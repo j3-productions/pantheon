@@ -38,7 +38,7 @@ const AppRouter = () => {
       return 0;
     } else if(key === "" && !url.match(Const.KEY_PATH_REGEX)) {
       return redirect(Const.KEY_PATH);
-    } else if(key !== "" && !url.match(Const.GALLERY_PATH_REGEX)) {
+    } else if(key !== "" && url.match(Const.KEY_PATH_REGEX)) {
       return redirect(Const.GALLERY_PATH);
     } else {
       return 0;
