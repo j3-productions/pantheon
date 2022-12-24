@@ -29,7 +29,7 @@ export const KeyEntry = () => {
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-row justify-center">
-          <div className="flex flex-row w-11/12 input-group">
+          <div className="input-group w-11/12">
             <input type="text" autoComplete="off"
               placeholder="API Key, e.g.: SLAabcdef12-1234-abcd-1234-abcdef123456TE"
               {...register("key", {required: true, pattern: Const.KEY_REGEX})} />
