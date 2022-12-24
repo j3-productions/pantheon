@@ -3,7 +3,7 @@ import type { LoaderFunctionArgs as RRDLoaderProps } from 'react-router';
 import { redirect, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { KeyProvider, useKey } from './components/KeyContext';
 
-import { APIKey } from './pages/Forms';
+import { KeyEntry, AppConfig } from './pages/Forms';
 import { Gallery } from './pages/Views';
 
 import * as Type from './types/pantheon';
@@ -68,12 +68,16 @@ const AppRouter = () => {
         children: [
           {
             path: Const.KEY_PATH.split("/").slice(-1)[0],
-            element: <APIKey />,
+            element: <KeyEntry />,
+          },
+          {
+            path: Const.CONFIG_PATH.split("/").slice(-1)[0],
+            element: <AppConfig />,
           },
           {
             path: Const.GALLERY_PATH.split("/").slice(-1)[0],
-            element: <Gallery />,
             loader: loadGallery,
+            element: <Gallery />,
           },
         ],
       },

@@ -2,10 +2,45 @@
 @tailwind components;
 @tailwind utilities;
 
+/********************/
+/* General Elements */
+/********************/
+
 h1 {
-  @apply font-bold text-2xl sm:text-4xl lg:text-6xl;
+    @apply font-bold text-2xl sm:text-4xl;
 }
 
 a:any-link {
-  @apply text-fgs2 underline;
+    @apply text-fgs2 underline;
+}
+
+nav {
+    @apply w-full sticky top-0 z-50 p-2 bg-bgp1 border-b border-solid border-bgs1;
+}
+
+/*****************/
+/* Form Elements */
+
+div:not(.input-group) > :is(input, button) {
+    @apply rounded-lg;
+}
+div.input-group > :is(input, button):first-child {
+    @apply rounded-l-lg;
+}
+div.input-group > :is(input, button):last-child {
+    @apply rounded-r-lg;
+}
+
+input {
+    @apply flex-1 min-w-0 py-2 px-3 bg-bgp1 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
+}
+
+button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    @apply flex-none py-2 px-3 bg-bgs1 border-2 border-bgs2/0 hover:border-bgs2/100 transition-colors;
+}
+button > svg {
+    @apply h-6 w-6 sm:h-5 sm:w-5 text-fgp1;
 }
