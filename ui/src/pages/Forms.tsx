@@ -6,7 +6,7 @@ import * as Type from '../types/pantheon';
 import * as Const from '../constants';
 import api from '../api';
 
-export const APIKey = () => {
+export const KeyEntry = () => {
   const [key, resetKey] = useKey();
 
   const {register, handleSubmit, formState: {errors}} = useForm<Type.PokeKey>();
@@ -29,17 +29,14 @@ export const APIKey = () => {
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-row justify-center">
-          <input type="text" autoComplete="off"
-            placeholder="API Key, e.g.: SLAabcdef12-1234-abcd-1234-abcdef123456TE"
-            {...register("key", {required: true, pattern: Const.KEY_REGEX})}
-            className={`w-9/12 py-2 px-3 bg-bgp1
-              border border-bgp2 rounded-l-lg
-              ring-bgs2 ring-inset focus:outline-none focus:ring-2`} />
-          <button type="submit" className={`rounded-r-lg py-2 px-3
-              font-semibold border-2 transition-colors
-              text-bgp1 bg-bgs1 border-bgs2/0 hover:border-bgs2/60`}>
-            <PlusIcon className="h-6 w-6 text-fgp1" />
-          </button>
+          <div className="flex flex-row w-11/12 input-group">
+            <input type="text" autoComplete="off"
+              placeholder="API Key, e.g.: SLAabcdef12-1234-abcd-1234-abcdef123456TE"
+              {...register("key", {required: true, pattern: Const.KEY_REGEX})} />
+            <button type="submit">
+              <PlusIcon />
+            </button>
+          </div>
         </div>
         <div className="flex flex-row justify-center">
           {errors.key &&
@@ -53,5 +50,13 @@ export const APIKey = () => {
         </div>
       </form>
     </React.Fragment>
+  );
+};
+
+export const AppConfig = () => {
+  // TODO: Allow the user to change: mode (dark/light), API key, etc..
+
+  return (
+    <p>TODO</p>
   );
 };
