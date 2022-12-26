@@ -10,6 +10,10 @@ h1 {
     @apply font-bold text-2xl sm:text-4xl;
 }
 
+h2 {
+    @apply font-bold text-xl sm:text-2xl;
+}
+
 a:any-link {
     @apply text-fgs2 underline;
 }
@@ -18,17 +22,19 @@ nav {
     @apply w-full sticky top-0 z-50 p-2 bg-bgp1 border-b border-solid border-bgs1;
 }
 
+code {
+    @apply px-1 rounded-md bg-fgp1/30;
+}
+
 /*****************/
 /* Form Elements */
+/*****************/
 
 /*
 div:has(> *.flex-1) {
     @apply flex-1 min-w-0;
 }
 */
-div.input-group {
-    @apply flex flex-row justify-center;
-}
 div:not(.input-group) > :is(input, button) {
     @apply rounded-lg;
 }
@@ -51,4 +57,20 @@ button,
 }
 button svg {
     @apply h-6 w-6 sm:h-5 sm:w-5 text-fgp1;
+}
+
+/******************/
+/* Custom Classes */
+/******************/
+
+.input-group {
+    @apply flex flex-row justify-center;
+}
+
+.hover-trigger .hover-target {
+    display: none;
+}
+
+.hover-trigger:hover .hover-target {
+    display: block;
 }
