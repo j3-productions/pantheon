@@ -1,37 +1,43 @@
-import React, { ChangeEvent, KeyboardEvent, useCallback } from 'react';
+import React, { ChangeEvent, KeyboardEvent, useState, useCallback } from 'react';
 import { redirect, Link } from 'react-router-dom';
+import type { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { HomeIcon, PlusIcon, Cog6ToothIcon, MagnifyingGlassIcon } from '@heroicons/react/24/solid';
+import {
+  HomeIcon, DocumentPlusIcon,
+  Cog6ToothIcon, MagnifyingGlassIcon
+} from '@heroicons/react/24/solid';
 import { useKey } from '../components/KeyContext';
 import * as Type from '../types/pantheon';
 import * as Const from '../constants';
 import api from '../api';
 
 interface NavBarProps {
-  query: string;
-  setQuery: (value: string) => void;
+  params: ReturnType<typeof useSearchParams>[0];
+  setParams: ReturnType<typeof useSearchParams>[1];
 }
 
-export const NavBar = ({query, setQuery}: NavBarProps) => {
-  // TODO: Enable search bar going to a '?q=' page
+export const NavBar = ({params, setParams}: NavBarProps) => {
+  const [query, setQuery] = useState<string>(params.get("q") || "");
+  const submitQuery = useCallback(() => {
+    if(query !== "") {
+      params.set("q", query);
+      setParams(params.toString());
+    }
+  }, [query, params, setParams]);
 
   const onChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const {value}: {value: string;} = event.target;
     setQuery(value);
   }, [query, setQuery]);
   const onKeyDown = useCallback((event: KeyboardEvent<HTMLInputElement>) => {
-    if(event.key === "Enter" && query !== "") {
+    if(event.key === "Enter") {
       event.preventDefault();
-      console.log(query);
-      // navigate(`/search/${searchPlanet}/${searchBoard}/${query}`);
+      submitQuery();
     }
-  }, [query]);
+  }, [submitQuery]);
   const onClick = useCallback(() => {
-    if(query !== "") {
-      console.log(query);
-      // navigate(`/search/${searchPlanet}/${searchBoard}/${query}`);
-    }
-  }, [query]);
+    submitQuery();
+  }, [submitQuery]);
 
   return (
     <nav>
@@ -39,6 +45,11 @@ export const NavBar = ({query, setQuery}: NavBarProps) => {
         <button>
           <Link to={Const.GALLERY_PATH}>
             <HomeIcon />
+          </Link>
+        </button>
+        <button>
+          <Link to={`?q=`}>
+            <DocumentPlusIcon />
           </Link>
         </button>
         <div className="flex-1 min-w-0 input-group">
