@@ -32,7 +32,7 @@ export function App() {
 const AppRouter = () => {
   const [key, resetKey] = useKey();
 
-  const loadBase = async ({request}: RRDLoaderProps) => {
+  const loadBase = async ({request, params}: RRDLoaderProps) => {
     const url: string = (new URL(request.url)).pathname;
     if(key === undefined) {
       return 0;
@@ -45,7 +45,9 @@ const AppRouter = () => {
     }
   };
 
-  const loadGallery = async ({request}: RRDLoaderProps) => (
+  const loadGallery = async ({request, params}: RRDLoaderProps) => (
+    // TODO: Use 'params.get("q")' to send a file search query.
+    // TODO: Use 'params.get("i")' to send a specific file query.
     api.poke<any>({
       app: "pantheon-agent",
       mark: "pantheon-action",
