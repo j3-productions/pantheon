@@ -4,7 +4,7 @@
 ::  TODO: Add permissions surrounding the 'key' value.
 ::
 /-  *pantheon
-/+  default-agent, dbug, agentio, *pantheon
+/+  default-agent, dbug, agentio, *pantheon, gossip
 ::
 ::
 |%
@@ -23,6 +23,13 @@
 %-  agent:dbug
 =|  state-0
 =*  state  -
+
+%-  %+  agent:gossip
+      [1 %anybody %anybody]
+    %+  ~(put by *(map mark $-(* vase)))
+      %rumor
+    |=(n=* !>((grab-rumor n)))
+
 ^-  agent:gall
 |_  =bowl:gall
 +*  this      .
@@ -77,13 +84,39 @@
       [%x %files ~]
     ``pantheon-query+!>(`query`[%files files])
   ==
-::
+::  case for files youve seen vs own
 ++  on-watch  on-watch:default
-::
+  |=  =path
+  ^-  (quip card _this)
+  ?:  ?=([%http-response *] path)  [~ this]
+  ?.  =(/~/gossip/source path)
+    (on-watch:def path)
+  :_  this
+  =/  files-list=(list *)  (tap:files-orm files)
+  |-
+  ?~  files  ~
+  ?:  =(privacy.val.i.files %pals)
+    :-  [%give %fact ~ %rumor !>(val.i.files)]  $(files t.files)
+  $(files t.files)
+:: send out files
 ++  on-leave  on-leave:default
 ::
 ++  on-agent  on-agent:default
-::
+|=  [=wire =sign:agent:gall]
+  ^-  (quip card _this)
+  ?.  ?&  =(/~/gossip/gossip wire)
+          ?=(%fact -.sign)
+          =(%rumor p.cage.sign)
+      ==
+    ~&  [dap.bowl %strange-sign wire sign]
+    (on-agent:def wire sign)
+  =+  !<(=file q.cage.sign)
+  :-  ~
+  =-  this(files -)
+  (put:files-orm files cid.file file)
+
+::  getting files
+:: distinguish files you saw vs your files
 ++  on-arvo
   |=  [=wire =sign-arvo]
   ^-  (quip card _this)
@@ -117,14 +150,20 @@
       =,  dejs:format
       |=  obj=json
       ;;  file
+      :-  our.bowl
+      :-  %private
       %.  obj
       %-  ot
       :~  [%cid so]
           [%name so]
           [%tags (ar (ot ~[id+so name+so slatename+so]))]
+          [%is-public bo]
       ==
     ==
   ==
 ::
 ++  on-fail   on-fail:default
+::  shorthand for mop function usage
+::
+++  files-orm  ((on id file) gth)
 --
