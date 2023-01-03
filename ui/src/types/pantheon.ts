@@ -38,6 +38,10 @@ export interface ScryFile {
   tags: ScryTag[];
 }
 
+export interface ScryFiles {
+  [key: string]: ScryFile;
+}
+
 /*****************************/
 /* Poke Types (React->Urbit) */
 /*****************************/
@@ -73,5 +77,4 @@ export interface PokeKey extends ScryKey {}
 // Interface Types //
 /////////////////////
 
-// export type SetThreadAPI = 'set-best' | 'unset-best' | 'vote-up' | 'vote-dn';
-// export type SetPermsAPI = 'toggle' | 'ban' | 'unban' | 'allow';
+export type GalleryMode = "simple" | "detail" | "modify";
