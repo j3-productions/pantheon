@@ -1,14 +1,17 @@
 import React, { useState, useContext } from 'react';
-import type { LoaderFunctionArgs as RRDLoaderProps } from 'react-router';
+import type {
+  LoaderFunction as RRDLoaderFun,
+  ShouldRevalidateFunction as RRDRevalidateFun,
+} from 'react-router';
 import { redirect, createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { KeyProvider, useKey } from './components/KeyContext';
 
+import api from './api';
 import { KeyEntry, AppConfig } from './pages/Forms';
 import { Gallery } from './pages/Views';
 
 import * as Type from './types/pantheon';
 import * as Const from './constants';
-import api from './api';
 
 ///////////////////////////
 /// Component Functions ///
@@ -32,7 +35,7 @@ export function App() {
 const AppRouter = () => {
   const [key, resetKey] = useKey();
 
-  const loadBase = async ({request, params}: RRDLoaderProps) => {
+  const loadBase: RRDLoaderFun = async ({request, params}) => {
     const url: string = (new URL(request.url)).pathname;
     if(key === undefined) {
       return 0;
@@ -45,9 +48,8 @@ const AppRouter = () => {
     }
   };
 
-  const loadGallery = async ({request, params}: RRDLoaderProps) => (
+  const loadGallery: RRDLoaderFun = async ({request, params}) => (
     // TODO: Use 'params.get("q")' to send a file search query.
-    // TODO: Use 'params.get("i")' to send a specific file query.
     api.poke<any>({
       app: "pantheon-agent",
       mark: "pantheon-action",
@@ -60,6 +62,12 @@ const AppRouter = () => {
     ).then((result: any) =>
       api.scry<Type.ScryFile[]>({app: 'pantheon-agent', path: '/files'})
     )
+  );
+  // NOTE: Only reload gallery data when (1) navigating from another URL or
+  // (2) submitting a different search query.
+  const reloadGallery: RRDRevalidateFun = ({currentUrl, nextUrl}) => (
+    (currentUrl.pathname !== nextUrl.pathname) ||
+    (currentUrl.searchParams.get("q") !== nextUrl.searchParams.get("q"))
   );
 
   return (
@@ -79,6 +87,7 @@ const AppRouter = () => {
           {
             path: Const.GALLERY_PATH.split("/").slice(-1)[0],
             loader: loadGallery,
+            shouldRevalidate: reloadGallery,
             element: <Gallery />,
           },
         ],
