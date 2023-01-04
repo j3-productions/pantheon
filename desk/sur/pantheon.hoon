@@ -5,15 +5,19 @@
 +$  key  @t
 +$  cid  @t
 +$  merge-strategy  ?(%ours %theirs %union %intersect)
++$  gossip-privacy  ?(%private %pals %public)
 +$  tag
   $:  id=@t
       name=@t
       slatename=@t
   ==
 +$  file
-  $:  cid=cid
+  $:  owner=@p
+      privacy=gossip-privacy  :: privacy setting for our app
+      cid=cid
       name=@t
       tags=(list tag)
+      islink=?(%.y %.n)
 ::    blurhash=(unit @t)
 ::    body=@t
 ::    cover-image=(unit @t)
