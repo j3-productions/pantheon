@@ -18,6 +18,8 @@ import * as Const from '../constants';
 interface NavBarProps {
   params: ReturnType<typeof useSearchParams>[0];
   setParams: ReturnType<typeof useSearchParams>[1];
+  mode: Type.GalleryMode;
+  setMode: (mode: Type.GalleryMode) => void;
 }
 
 // TODO: Change this to 'file' and 'position' parameters (where
@@ -28,7 +30,7 @@ interface FocusNavBarProps extends NavBarProps {
   files: (Type.ScryFile | undefined)[];
 }
 
-export const SplashNavBar = ({params, setParams}: NavBarProps) => {
+export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) => {
   const [query, setQuery] = useState<string>(params.get("q") || "");
   const submitQuery = useCallback(() => {
     if(query !== "") {
@@ -38,8 +40,7 @@ export const SplashNavBar = ({params, setParams}: NavBarProps) => {
     }
   }, [query, params, setParams]);
   const submitFile = useCallback(() => {
-    params.delete("i");
-    params.set("q", "");
+    params.set("i", "");
     setParams(params.toString());
   }, [params, setParams]);
 
@@ -60,6 +61,14 @@ export const SplashNavBar = ({params, setParams}: NavBarProps) => {
     submitQuery();
   }, [submitQuery]);
 
+  /* TODO: Add configuration screen for the official release.
+        <button>
+          <Link to={Const.CONFIG_PATH}>
+            <Cog6ToothIcon />
+          </Link>
+        </button>
+  */
+
   return (
     <nav className="bg-bgp1 border-bgs1">
       <div className="flex flex-row gap-2">
@@ -78,19 +87,39 @@ export const SplashNavBar = ({params, setParams}: NavBarProps) => {
             <MagnifyingGlassIcon />
           </button>
         </div>
-        <button>
-          <Link to={Const.CONFIG_PATH}>
-            <Cog6ToothIcon />
-          </Link>
-        </button>
       </div>
     </nav>
   );
 };
 
-export const FocusNavBar = ({params, setParams, index, total, files}: FocusNavBarProps) => {
-  const mode: Type.GalleryMode = (params.get("m") || "simple") as Type.GalleryMode;
+export const UploadNavBar = ({params, setParams, mode, setMode}: NavBarProps) => {
+  const onClose = useCallback(() => {
+    params.delete("i");
+    setParams(params.toString());
+  }, [params, setParams]);
 
+  return (
+    <nav className="bg-bgp2 border-bgs1">
+      <div className="flex flex-row justify-between">
+        {/* Left Nav */}
+        <div />
+        {/* Center Nav */}
+        <div className="flex flex-row items-center">
+          <h2>{"Upload File"}</h2>
+        </div>
+        {/* Right Nav */}
+        <div className="flex flex-row gap-2 items-center">
+          <button onClick={onClose}>
+            <XMarkIcon />
+          </button>
+        </div>
+      </div>
+    </nav>
+  );
+};
+
+export const FocusNavBar =
+    ({params, setParams, mode, setMode, index, total, files}: FocusNavBarProps) => {
   const onNext = useCallback(() => {
     if(files[2] !== undefined) {
       params.set("i", files[2].cid);
@@ -108,17 +137,12 @@ export const FocusNavBar = ({params, setParams, index, total, files}: FocusNavBa
     params.delete("i");
     setParams(params.toString());
   }, [params, setParams]);
-  // TODO: Skip the modify form for files that aren't your own.
   const onToggle = useCallback(() => {
-    const newMode: Type.GalleryMode =
-      (mode === "simple") ? "detail" :
-      (mode === "detail") ? "modify" :
-      /*(mode === "modify") ? */ "simple";
-    params.set("m", newMode);
-    setParams(params.toString());
-  }, [params, setParams]);
+    setMode((mode === "simple") ? "detail" : "simple");
+  }, [mode, setMode]);
 
   // TODO: Make this navbar match the height of the main navbar.
+  // TODO: Improve the behavior of this navbar when in mobile mode.
 
   return (
     <nav className="bg-bgp2 border-bgs1">
@@ -139,11 +163,10 @@ export const FocusNavBar = ({params, setParams, index, total, files}: FocusNavBa
         </div>
         {/* Right Nav */}
         <div className="flex flex-row gap-2 items-center">
-          {/* TODO: Skip the modify form for files that aren't your own. */}
           <button onClick={onToggle}>
-            {(mode === "simple") ? (<InformationCircleIcon />) :
-              (mode === "detail") ? (<PencilSquareIcon />) :
-              /*(mode === "modify") ? */ (<PhotoIcon />)
+            {(mode === "simple") ?
+              (<InformationCircleIcon />) :
+              (<PhotoIcon />)
             }
           </button>
           <button onClick={onClose}>

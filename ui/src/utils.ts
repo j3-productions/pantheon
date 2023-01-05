@@ -1,4 +1,9 @@
 import * as Type from "./types/pantheon";
+import * as Const from "./constants";
+
+/////////////////////////
+/// General Functions ///
+/////////////////////////
 
 export function enumerateObject<ValueType>(
     object: Record<string, ValueType>) :
@@ -39,3 +44,101 @@ export function mergeDeep(
 
   return output;
 }
+
+export function formatFileExt(file: File): string {
+  const formatMatches = file.type.match(/([^\/]+\/)?([^\/]+)/);
+  return (formatMatches ? formatMatches[2] : file.type).toUpperCase();
+}
+
+//////////////////////////////
+/// App-Specific Functions ///
+//////////////////////////////
+
+export const getSlateData = (key: string): object => (
+  fetch(Const.API_BASE_PATH + "get", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": key,
+    }
+  }).then((result: Response) =>
+    result.json()
+  )
+);
+
+export const getSlateCollection = (key: string, id: string): object => (
+  fetch(Const.API_BASE_PATH + "get-collection", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": key,
+    },
+    body: JSON.stringify({data: {id}}),
+  }).then((result: Response) =>
+    result.json()
+  ).then((result: any) =>
+    result.collection
+  )
+);
+
+export const getSlateTagID = (key: string, tag: string) => (
+  fetch(Const.API_BASE_PATH + "create-collection", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": key,
+    },
+    body: JSON.stringify({data: {
+      name: tag,
+      isPublic: true,
+      body: "",
+    }}),
+  }).then((result: Response) =>
+    getSlateData(key)
+  ).then(({collections}: any) =>
+    collections.find((collection: any) =>
+      collection.slatename === tag
+    )?.id
+  )
+);
+
+export const uploadSlateFile = (key: string, file: File/*, name: string, tags: string[]*/) => {
+  // TODO: Indicate that 'name' should be used for the file in Slate.
+  let uploadData = new FormData();
+  uploadData.append("data", file);
+
+  return getSlateTagID(key, Const.APP_TAG_NAME).then((appTagId: string) =>
+    fetch(Const.API_UPLOAD_PATH + appTagId, {
+      method: "POST",
+      headers: {"Authorization": key},
+      body: uploadData,
+    })
+  );
+  // TODO: The following attempt at tag support has been omitted because
+  // the Slate API throws 500 errors when attempting to add new objects
+  // to a collection; only trivial metadata can be changed (e.g. title,
+  // description). Attempting to modify the object to add the right tags
+  // has similar results.
+  /*
+  .then((fileObject: object) =>
+    Promise.all(tags.map((tag: string) =>
+      getSlateTagID(key, tag).then((tagId: string) =>
+        getSlateCollection(key, tagId)
+      ).then((collection: object) => {
+        console.log(fileObject);
+        console.log(collection);
+        collection.objects.push(fileObject);
+        console.log(collection);
+        return fetch(Const.API_BASE_PATH + "update-collection", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": key,
+          },
+          body: JSON.stringify({data: collection})
+        });
+      })
+    ))
+  );
+  */
+};

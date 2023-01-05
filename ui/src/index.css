@@ -34,6 +34,10 @@ code {
 /* Form Elements */
 /*****************/
 
+label {
+    @apply text-sm font-semibold;
+}
+
 /*
 div:has(> *.flex-1) {
     @apply flex-1 min-w-0;
@@ -50,7 +54,16 @@ div.input-group > :is(input, button):last-child {
 }
 
 input {
-    @apply flex-1 min-w-0 py-2 px-3 bg-bgp1 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
+    @apply flex-1 min-w-0 py-2 px-3 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
+}
+input[type="file"] {
+    display: none;
+}
+input:enabled {
+    @apply bg-bgp2/30;
+}
+input:disabled {
+    @apply hover:cursor-not-allowed bg-bgp2;
 }
 
 :is(button, [type='button'], [type='reset'], [type='submit']) {
@@ -78,6 +91,10 @@ input {
 
 .input-group {
     @apply flex flex-row justify-center;
+}
+
+.input-file { /* TODO: Workshop this a bit. */
+    @apply block text-base font-normal py-2 px-3 hover:cursor-pointer rounded-lg border-2 text-fgp1 border-bgs2/0 bg-bgs1 hover:border-bgs2/100 transition-colors;
 }
 
 .hover-trigger .hover-target {
