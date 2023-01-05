@@ -15,7 +15,8 @@
       name=@t
       tags=(list tag)
       type=@t
-::    filename=@t
+      islink=?(%.y %.n)
+      ispublic=?(%.y %.n)
 ::    blurhash=(unit @t)
 ::    body=@t
 ::    cover-image=(unit @t)
@@ -23,13 +24,11 @@
 ::    download-count=@ud
 ::    save-count=@ud
 ::    size=@ud
-::    is-public=?(%.y %.n)
 ::    id=@t
 ::    owner-id=@t
 ::    url=@t
 ::    :: TODO: This probably exists as an enumerated sequence somewhere.
 ::    :: TODO: This could all probably be combined into a single type w/ a unit.
-::    is-link=@f
 ::    link-author=(unit @t) :: (unit @p)?
 ::    link-body=(unit @t)
 ::    link-domain=(unit @t) :: web address

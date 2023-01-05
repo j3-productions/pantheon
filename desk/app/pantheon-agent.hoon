@@ -143,6 +143,8 @@
             [%name so]
             [%tags (ar (ot ~[id+so name+so slatename+so]))]
             [%type so]
+            [%'isPublic' bo]
+            [%'isLink' bo]
         ==
       ==
     ==
