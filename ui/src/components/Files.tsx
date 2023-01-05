@@ -30,9 +30,6 @@ export const FilePreview = ({file}: FilePreviewProps) => {
     }, [file]);
 
     return (
-      <img className={`object-cover object-center
-        w-full aspect-square rounded-lg
-        border-2 border-dashed border-fgp1/60`}
-        src={previewURL} />
+      <img className="image-preview" src={previewURL} />
     );
 };

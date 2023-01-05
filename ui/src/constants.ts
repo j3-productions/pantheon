@@ -6,6 +6,7 @@ export const KEY_PATH: string = APP_PATH + "key";
 export const GALLERY_PATH: string = APP_PATH + "gal";
 export const CONFIG_PATH: string = APP_PATH + "cfg";
 
+export const FILENAME_REGEX: RegExp = /^(.*)\.(.+)$/;
 export const KEY_REGEX: RegExp =
   /^SLA([a-f0-9]{8})-([a-f0-9]{4})-([a-f0-9]{4})-([a-f0-9]{4})-([a-f0-9]{12})TE$/;
 export const ASSET_PATH_REGEX: RegExp = new RegExp(`${ASSET_PATH}.*`);

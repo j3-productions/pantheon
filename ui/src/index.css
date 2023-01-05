@@ -18,7 +18,7 @@ h3 {
     @apply font-bold text-lg sm:text-2xl;
 }
 
-a:any-link {
+:is(h1, h2, h3, h4, h5, h6, p) > a:any-link {
     @apply text-fgs2 underline;
 }
 
@@ -53,20 +53,19 @@ div.input-group > :is(input, button):last-child {
     @apply rounded-r-lg;
 }
 
-div > select {
-    @apply bg-bgp2/30 flex-1 min-w-0 py-3 px-3 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
-}
-
 input {
     @apply flex-1 min-w-0 py-2 px-3 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
+}
+div > select {
+    @apply flex-1 min-w-0 py-3 px-3 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
 }
 input[type="file"] {
     display: none;
 }
-input:enabled {
+input:enabled, div > select:enabled {
     @apply bg-bgp2/30;
 }
-input:disabled {
+input:disabled, div > select:disabled {
     @apply hover:cursor-not-allowed bg-bgp2/100;
 }
 
@@ -100,6 +99,10 @@ input:disabled {
 /* Source: https://stackoverflow.com/a/25825731/837221 */
 .input-file {
     @apply block text-base font-normal text-center py-2 px-3 hover:cursor-pointer rounded-lg border-2 text-bgp1 bg-bgs2 border-bgs1/0 hover:border-bgs1/100 transition-colors;
+}
+
+.image-preview {
+    @apply object-cover object-center w-full aspect-square rounded-lg border-2 border-dashed border-fgp1/60;
 }
 
 .hover-trigger .hover-target {

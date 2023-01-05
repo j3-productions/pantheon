@@ -27,6 +27,9 @@ export const Gallery = () => {
   const [params, setParams] = useSearchParams();
   const navParams = {params, setParams, mode, setMode};
 
+  const [find2fcid, fcid2find] = enumerateObject<Type.ScryFile>(files);
+  const focusIndex = params.get("i") ? fcid2find[params.get("i") || ""] : undefined;
+
   // NOTE: In order to force page reloads, this component sets 'u=1' and
   // then immediately erases it. The erasure will not cause a second reload.
   if(params.get("u") === "1") {
@@ -34,11 +37,7 @@ export const Gallery = () => {
     setParams(params.toString());
   }
 
-  const [find2fcid, fcid2find] = enumerateObject<Type.ScryFile>(files);
-  const focusIndex = params.get("i") ? fcid2find[params.get("i") || ""] : undefined;
-
   // TODO: Shared component for rendering 'Type.ScryFile'.
-
   // TODO: Add support for rendering the content retrieved from a '?q=' query.
   // TODO: Add support for rendering previews of gif, pdf, md
   // TODO: Perfect the scaling ratios as the screen gets wider.
@@ -46,10 +45,6 @@ export const Gallery = () => {
   // match margins between items and the edge of the screen.
 
   const GalleryEntry = (file: Type.ScryFile) => {
-    const fileExtRaw: RegExpExecArray | null = /[^.]+$/.exec(file.name);
-    const fileExt: string = (fileExtRaw !== null) ?
-      (fileExtRaw[0] as string).toUpperCase() : "(No Extension)";
-
     let fileSource: string = "";
     let fileDesc: React.ReactNode | null = null;
     // TODO: Implement this once the format for link data has been finalized.
@@ -63,7 +58,7 @@ export const Gallery = () => {
         fileDesc = (
           <React.Fragment>
             <h2>{file.name}</h2>
-            <p>{fileExt}</p>
+            <p>{formatFileExt(file)}</p>
           </React.Fragment>
         );
     }
@@ -85,6 +80,7 @@ export const Gallery = () => {
       </div>
     );
   };
+
   const GallerySplash = ({files}: GalleryViewProps) => (
     <div className={`py-4 grid gap-4
         grid-cols-1 sm:grid-cols-2 lg:grid-cols-3
@@ -96,18 +92,38 @@ export const Gallery = () => {
   );
   const GalleryFocus = ({files}: GalleryViewProps) => {
     const file: Type.ScryFile = (files[params.get("i") || ""]) as Type.ScryFile;
-    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const [isViewing, setIsViewing] = useState<boolean>(true);
+    const [name, setName] = useState<string>(file.name);
+    const [privacy, setPrivacy] = useState<Type.PrivacySetting>("private");
 
-    // TODO: Create the view of the file with all relevant metadata, with a
-    // button at the bottom for editing (if the file belongs to the user).
-    // TODO: Create the form for the file similar to the view but it allows
-    // for editing fields and submitting changes (identical form w/ some toggled
-    // active/deactive forms).
+    const {register, setError, handleSubmit, formState: {errors}} = useForm();
+    const onSubmit = (values: any) => {
+      if(isViewing) {
+        setIsViewing(!isViewing);
+      } else {
+        // TODO: During BE upgrade/integration, change this to submit an edit
+        // poke to the Urbit back-end for this file object.
+        console.log(name);
+        console.log(privacy);
+        setIsViewing(!isViewing);
+        // TODO: Use the following to reload the page after an update:
+        //
+        // params.delete("i");
+        // params.set("u", "1");
+        // setParams(params.toString());
+      }
+    };
+    const onNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+      const {value}: {value: string;} = event.target;
+      setName(value);
+    }, [name, setName]);
+    const onPrivacyChange = (event: ChangeEvent<HTMLSelectElement>) => {
+      const {value}: {value: string;} = event.target;
+      setPrivacy((value as Type.PrivacySetting));
+    };
 
-    // TODO: Detail form is identical to upload form except:
-    // - File Upload Button
-    // + Author (Always Inactive)
-    // ~ Button Functions (Download/Dismiss on Left, Edit/Submit on Right (Deactive if not author))
+    // TODO: During BE upgrade/integration, change this to be real author.
+    const author: string = `~${api.ship}`;
 
     if(mode === "simple") {
       return (
@@ -115,7 +131,66 @@ export const Gallery = () => {
       );
     } else { // if(mode === "detail")
       return (
-        <p>TODO: Detail Mode</p>
+        <form className="py-4 px-4" onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 overflow-y-auto">
+            <div className="flex-none">
+              <img className="image-preview" src={getSlateSource(file)} />
+            </div>
+            <div className="flex-1">
+              <div>
+                <label htmlFor="name">File Name</label>
+                <div className="flex items-center space-x-2">
+                  <input value={name} disabled={isViewing}
+                    {...register("name", {required: !isViewing, pattern: Const.FILENAME_REGEX, onChange: onNameChange})} />
+                </div>
+              </div>
+              <div className="flex flex-row justify-center">
+                {errors.name &&
+                  <React.Fragment>
+                    <ExclamationTriangleIcon className="h-6 w-6 text-fgs1" />
+                    {(errors.name.type === "required") ?
+                      (<p>A filename is required.</p>) :
+                      (<p>Filename must have a valid extension.</p>)}
+                  </React.Fragment>
+                }
+              </div>
+              <div>
+                <label htmlFor="ext">File Extension</label>
+                <div className="flex items-center space-x-2">
+                  <input value={formatFileExt(file)} disabled/>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="author">Urbit Author</label>
+                <div className="flex items-center space-x-2">
+                  <input value={author} disabled/>
+                </div>
+              </div>
+              <div>
+                <label htmlFor="privacy">Privacy Setting</label>
+                <div className="flex items-center space-x-2">
+                  <select onChange={onPrivacyChange} disabled={isViewing}>
+                    <option value="private">Private</option>
+                    <option value="protected">Protected (Pals)</option>
+                  </select>
+                </div>
+              </div>
+              {/*<TagField tags={tags} onTags={setTags} />*/}
+            </div>
+          </div>
+          <div className='pt-3'>
+            <div className='flex justify-between border-t border-bgs1 py-3'>
+              <button>
+                <a href={getSlateSource(file)} download>
+                  Download
+                </a>
+              </button>
+              <button type="submit" disabled={author !== `~${api.ship}`}>
+                {isViewing ? "Edit" : "Submit"}
+              </button>
+            </div>
+          </div>
+        </form>
       );
     }
   };
@@ -154,7 +229,7 @@ export const Gallery = () => {
       }
     };
     const onPrivacyChange = (event: ChangeEvent<HTMLSelectElement>) => {
-      const value = event.target.value;
+      const {value}: {value: string;} = event.target;
       setPrivacy((value as Type.PrivacySetting));
     };
     const onClose = useCallback(() => {
