@@ -45,9 +45,15 @@ export function mergeDeep(
   return output;
 }
 
-export function formatFileExt(file: File): string {
-  const formatMatches = file.type.match(/([^\/]+\/)?([^\/]+)/);
-  return (formatMatches ? formatMatches[2] : file.type).toUpperCase();
+export function formatFileExt(file: File | Type.ScryFile): string {
+  if(file instanceof File) {
+    const formatMatches = file.type.match(/([^\/]+\/)?([^\/]+)/);
+    return (formatMatches ? formatMatches[2] : file.type).toUpperCase();
+  } else {
+    const fileExtRaw: RegExpExecArray | null = /[^.]+$/.exec(file.name);
+    return (fileExtRaw !== null) ? (fileExtRaw[0] as string).toUpperCase() :
+      "(No Extension)";
+  }
 }
 
 //////////////////////////////
