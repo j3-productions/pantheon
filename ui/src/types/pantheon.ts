@@ -62,19 +62,13 @@ export interface PokeKey extends ScryKey {}
 // }
 
 /////////////////
-// Route Types //
+// Other Types //
 /////////////////
 
-// export interface SearchRoute extends Record<string, string | undefined> {
-//   planet?: string;
-//   board?: string;
-//   lookup?: string;
-//   // limit?: string;
-//   // page?: string;
-// }
+export type GalleryMode = "simple" | "detail";
+export type PrivacySetting = "protected" | "private"; // "public"
 
-/////////////////////
-// Interface Types //
-/////////////////////
-
-export type GalleryMode = "simple" | "detail" | "modify";
+export interface FieldOption {
+  readonly label: string;
+  readonly value: string;
+}
