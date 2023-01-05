@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import { Link, useSearchParams, useLoaderData } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { MultiValue } from 'react-select';
 import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid'
 
 import api from '../api';
@@ -12,7 +11,10 @@ import { SplashNavBar, UploadNavBar, FocusNavBar } from '../components/NavBar';
 
 import * as Type from '../types/pantheon';
 import * as Const from '../constants';
-import { enumerateObject, formatFileExt, uploadSlateFile } from '../utils';
+import {
+  enumerateObject, formatFileExt,
+  getSlateSource, uploadSlateFile
+} from '../utils';
 
 interface GalleryViewProps {
   files: Type.ScryFiles;
@@ -25,6 +27,13 @@ export const Gallery = () => {
   const [params, setParams] = useSearchParams();
   const navParams = {params, setParams, mode, setMode};
 
+  // NOTE: In order to force page reloads, this component sets 'u=1' and
+  // then immediately erases it. The erasure will not cause a second reload.
+  if(params.get("u") === "1") {
+    params.delete("u");
+    setParams(params.toString());
+  }
+
   const [find2fcid, fcid2find] = enumerateObject<Type.ScryFile>(files);
   const focusIndex = params.get("i") ? fcid2find[params.get("i") || ""] : undefined;
 
@@ -35,10 +44,6 @@ export const Gallery = () => {
   // TODO: Perfect the scaling ratios as the screen gets wider.
   // TODO: Improve margins and centering so that margins between items
   // match margins between items and the edge of the screen.
-
-  const getSource = (file: Type.ScryFile) => (
-    `https://slate.textile.io/ipfs/${file.cid}`
-  );
 
   const GalleryEntry = (file: Type.ScryFile) => {
     const fileExtRaw: RegExpExecArray | null = /[^.]+$/.exec(file.name);
@@ -54,7 +59,7 @@ export const Gallery = () => {
       //   fileDesc = null;
       //   break;
       default: // case "file":
-        fileSource = getSource(file);
+        fileSource = getSlateSource(file);
         fileDesc = (
           <React.Fragment>
             <h2>{file.name}</h2>
@@ -91,15 +96,22 @@ export const Gallery = () => {
   );
   const GalleryFocus = ({files}: GalleryViewProps) => {
     const file: Type.ScryFile = (files[params.get("i") || ""]) as Type.ScryFile;
+    const [isEditing, setIsEditing] = useState<boolean>(false);
 
     // TODO: Create the view of the file with all relevant metadata, with a
     // button at the bottom for editing (if the file belongs to the user).
     // TODO: Create the form for the file similar to the view but it allows
-    // for editing fields and submitting changes.
+    // for editing fields and submitting changes (identical form w/ some toggled
+    // active/deactive forms).
+
+    // TODO: Detail form is identical to upload form except:
+    // - File Upload Button
+    // + Author (Always Inactive)
+    // ~ Button Functions (Download/Dismiss on Left, Edit/Submit on Right (Deactive if not author))
 
     if(mode === "simple") {
       return (
-        <img className="object-cover object-center" src={getSource(file)} />
+        <img className="object-cover object-center" src={getSlateSource(file)} />
       );
     } else { // if(mode === "detail")
       return (
@@ -115,18 +127,35 @@ export const Gallery = () => {
 
     // TODO: Add separate support for links.
     // TODO: Populate form w/ suggestions based on existing files?
-    // TODO: filename, tags, (privacy setting => must be set afterwards?)
+    // TODO: Add support for editing the filename and tags (collections).
 
-    const {register, handleSubmit, formState: {errors}} = useForm();
+    const {register, setError, handleSubmit, formState: {errors}} = useForm();
     const onSubmit = (values: any) => {
-      uploadSlateFile((key as string), values["upload"][0]).then((result: any) =>
-        onClose()
-      );
+      // TODO: Attempt to account for malformatted files as well by testing
+      // when 'file.type' cannot be derived.
+      // See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+      if(file === undefined) {
+        setError("upload", {type: "required"});
+      } else {
+        // NOTE: In order to force page reloads, this component sets 'u=1' and
+        // then immediately erases it. The erasure will not cause a second reload.
+        // TODO: Add an intermediate step where we '%sync-file' and then update
+        // the privacy setting of the file based on the user input (values["privacy"]).
+        uploadSlateFile((key as string), values["upload"][0]).then((result: any) => {
+          params.delete("i");
+          params.set("u", "1");
+          setParams(params.toString());
+        });
+      }
     };
     const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
       if(event.target && event.target.files && event.target.files.length > 0) {
         setFile(event.target.files[0]);
       }
+    };
+    const onPrivacyChange = (event: ChangeEvent<HTMLSelectElement>) => {
+      const value = event.target.value;
+      setPrivacy((value as Type.PrivacySetting));
     };
     const onClose = useCallback(() => {
       params.delete("i");
@@ -135,17 +164,25 @@ export const Gallery = () => {
 
     return (
       <form className="py-4 px-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className={`grid gap-4
-            grid-cols-1 sm:grid-cols-2
-            overflow-y-auto`}>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 overflow-y-auto">
           <div className="flex-none">
             <FilePreview file={file} />
-            <label class="input-file mt-3">
+            <label className="input-file mt-3">
               {/*TODO: Extend the accepted file types to plaintext and PDF: ,.pdf,.md,.txt.*/}
               <input type="file" accept="image/*"
                 {...register("upload", {required: true, onChange: onFileChange})} />
-              + Upload File
+              Choose File
             </label>
+            <div className="flex flex-row justify-center">
+              {errors.upload &&
+                <React.Fragment>
+                  <ExclamationTriangleIcon className="h-6 w-6 text-fgs1" />
+                  {(errors.upload.type === "required") ?
+                    (<p>Please select a file to continue.</p>) :
+                    (<p>Given file is improperly formatted.</p>)}
+                </React.Fragment>
+              }
+            </div>
           </div>
           <div className="flex-1">
             <div>
@@ -163,24 +200,14 @@ export const Gallery = () => {
             <div>
               <label htmlFor="privacy">Privacy Setting</label>
               <div className="flex items-center space-x-2">
-                {/*TODO: Change this to be a select prompt of privacy settings.*/}
-                <input placeholder="privacy setting"/>
+                <select onChange={onPrivacyChange}>
+                  <option value="private">Private</option>
+                  <option value="protected">Protected (Pals)</option>
+                </select>
               </div>
             </div>
             {/*<TagField tags={tags} onTags={setTags} />*/}
           </div>
-          {/*
-          <div className="flex flex-row justify-center">
-            {errors.key &&
-              <React.Fragment>
-                <ExclamationTriangleIcon className="h-6 w-6 text-fgs1" />
-                {(errors.key.type === "required") ?
-                  (<p>Please enter your API key.</p>) :
-                  (<p>Given API key is malformatted.</p>)}
-              </React.Fragment>
-            }
-          </div>
-          */}
         </div>
         <div className='pt-3'>
           <div className='flex justify-between border-t border-bgs1 py-3'>

@@ -63,11 +63,12 @@ const AppRouter = () => {
       api.scry<Type.ScryFile[]>({app: 'pantheon-agent', path: '/files'})
     )
   );
-  // NOTE: Only reload gallery data when (1) navigating from another URL or
-  // (2) submitting a different search query.
+  // NOTE: Only reload gallery data when (1) navigating from another URL,
+  // (2) submitting a different search query, or (3) uploading a file.
   const reloadGallery: RRDRevalidateFun = ({currentUrl, nextUrl}) => (
     (currentUrl.pathname !== nextUrl.pathname) ||
-    (currentUrl.searchParams.get("q") !== nextUrl.searchParams.get("q"))
+    (currentUrl.searchParams.get("q") !== nextUrl.searchParams.get("q")) ||
+    (nextUrl.searchParams.get("u") === "1")
   );
 
   return (

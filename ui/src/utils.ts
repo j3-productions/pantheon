@@ -54,6 +54,10 @@ export function formatFileExt(file: File): string {
 /// App-Specific Functions ///
 //////////////////////////////
 
+export const getSlateSource = (file: Type.ScryFile): string => (
+  `https://slate.textile.io/ipfs/${file.cid}`
+);
+
 export const getSlateData = (key: string): object => (
   fetch(Const.API_BASE_PATH + "get", {
     method: "GET",
