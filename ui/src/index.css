@@ -43,7 +43,7 @@ div:has(> *.flex-1) {
     @apply flex-1 min-w-0;
 }
 */
-div:not(.input-group) > :is(input, button) {
+div:not(.input-group) > :is(input, button, select) {
     @apply rounded-lg;
 }
 div.input-group > :is(input, button):first-child {
@@ -51,6 +51,10 @@ div.input-group > :is(input, button):first-child {
 }
 div.input-group > :is(input, button):last-child {
     @apply rounded-r-lg;
+}
+
+div > select {
+    @apply bg-bgp2/30 flex-1 min-w-0 py-3 px-3 border border-bgp2 ring-bgs2 ring-inset focus:outline-none focus:ring-2;
 }
 
 input {
@@ -63,7 +67,7 @@ input:enabled {
     @apply bg-bgp2/30;
 }
 input:disabled {
-    @apply hover:cursor-not-allowed bg-bgp2;
+    @apply hover:cursor-not-allowed bg-bgp2/100;
 }
 
 :is(button, [type='button'], [type='reset'], [type='submit']) {
@@ -93,8 +97,9 @@ input:disabled {
     @apply flex flex-row justify-center;
 }
 
-.input-file { /* TODO: Workshop this a bit. */
-    @apply block text-base font-normal py-2 px-3 hover:cursor-pointer rounded-lg border-2 text-fgp1 border-bgs2/0 bg-bgs1 hover:border-bgs2/100 transition-colors;
+/* Source: https://stackoverflow.com/a/25825731/837221 */
+.input-file {
+    @apply block text-base font-normal text-center py-2 px-3 hover:cursor-pointer rounded-lg border-2 text-bgp1 bg-bgs2 border-bgs1/0 hover:border-bgs1/100 transition-colors;
 }
 
 .hover-trigger .hover-target {
