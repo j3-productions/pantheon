@@ -67,6 +67,7 @@ export interface PokeKey extends ScryKey {}
 
 export type GalleryMode = "simple" | "detail";
 export type PrivacySetting = "protected" | "private"; // "public"
+export type PrivacyFilter = PrivacySetting | ""; // "public"
 
 export interface FieldOption {
   readonly label: string;
