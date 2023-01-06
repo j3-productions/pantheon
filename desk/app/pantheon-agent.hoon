@@ -19,13 +19,24 @@
       =files
   ==
 +$  card  card:agent:gall
+::  shorthand for mop function usage
+::
+++  files-orm  ((on cid file) gth)
+::  check if a file is new/different or already stored
+::
+++  is-new
+  |=  [f=file fs=files]
+  ^-  ?(%.y %.n)
+  =/  existing=(unit file)  (get:files-orm fs cid.f)
+  ?~  existing
+    %.y
+  ?!(=((need existing) f))
 --
 ::
 ::
 %-  agent:dbug
 =|  state-0
 =*  state  -
-=<
 %-  %+  agent:gossip
       [1 %anybody %anybody]
     %+  ~(put by *(map mark $-(* vase)))
@@ -70,14 +81,9 @@
         :^  %'GET'  'https://slate.host/api/v3/get'
         ~[['content-type' 'application/json'] ['Authorization' key]]  ~
       :_  this
-      :-
-      %-  ~(arvo pass:io /files/(scot %tas merge.act))
-      [%i %request http-files *outbound-config:iris]
-      %+  turn
-        %+  skim
-          (tap:files-orm files)
-        |=(f=[p=cid q=file] =(privacy.q.f %pals))
-      |=(f=[p=cid q=file] [%give %fact ~ %file !>(q.f)])  
+      :~  %-  ~(arvo pass:io /files/(scot %tas merge.act))
+        [%i %request http-files *outbound-config:iris]
+      ==
     ==
   ==
 ::
@@ -91,8 +97,7 @@
       [%x %files ~]
     ``pantheon-query+!>(`query`[%files files])
   ==
-::  case for files youve seen vs own
-::
+
 ++  on-watch
   |=  =path
   ^-  (quip card _this)
@@ -100,12 +105,14 @@
   ?.  =(/~/gossip/source path)
     (on-watch:default path)
   :_  this
+  ::  send out all of our files that either we own and set privacy to pals, or we know and privacy is public.
+  ::
   %+  turn
     %+  skim
       (tap:files-orm files)
-    |=(f=[p=cid q=file] =(privacy.q.f %pals))
+    |=(f=[p=cid q=file] |(&(=(privacy.q.f %pals) =(owner.q.f our.bowl)) =(privacy.q.f %public)))
   |=(f=[p=cid q=file] [%give %fact ~ %file !>(q.f)])
-:: send out files
+::
 ++  on-leave  on-leave:default
 ::
 ++  on-agent
@@ -118,7 +125,12 @@
     ~&  [dap.bowl %strange-sign wire sign]
     (on-agent:default wire sign)
   =+  !<(=file q.cage.sign)
-  `this(files (put:files-orm files cid.file file))
+  ::  gossip out a received file if it is public and we haven't seen it before.
+  ::
+  :-  ?.  &((is-new file files) =(privacy.file %public))  ~
+      [[%give %fact [/~/gossip/source]~ %file !>(file)] ~]
+  this(files (put:files-orm files cid.file file))
+
 ::  getting files
 :: distinguish files you saw vs your files
 ++  on-arvo
@@ -138,11 +150,19 @@
       =+  cols=(~(got by p.u.jon) 'collections')
       ?>  ?=([%a *] cols)
       =+  cols=p.cols
-      =/  merge=merge-strategy  %theirs  :: +<.wire
-      =;  new-files=_files  `this(files new-files)
-      %-  malt
-      %-  turn  :_  |=([=file] [cid.file file])
-      ^-  (list file)
+      =/  fetched-files=(list file) 
+      %-  turn  :_
+                ::  grab previous privacy setting if exists, otherwise private
+                ::  add owner as us, since we fetched from our slate.
+                |=
+                f=$:(cid=cid name=@t tags=(list tag) islink=?(%.y %.n))
+                ^-  file
+                =/  funit=(unit file)  (get:files-orm files cid.f)
+                ?~  funit 
+                  [our.bowl [%private f]]
+                =+  stored-file=(need funit)
+                [our.bowl [privacy.stored-file f]]
+      ^-  (list $:(cid=cid name=@t tags=(list tag) islink=?(%.y %.n)))
       %-  zing
       |-
         ?~  cols  ~
@@ -150,17 +170,11 @@
         ?>  ?=([%o *] col)
         =+  objs=(~(got by p.col) 'objects')
         ?>  ?=([%a *] objs)
-        ::  TODO: Figure out how to merge incoming `mop` with existing
-        ::  `mop` of CIDs (just replace it?, keep the overlap?)
-        ::  TODO: Get rid of empty entry that's introduced in this list
-        ::  (perhaps by the initial bunt?)
         :_  $(cols t.cols)
         %+  turn  p.objs
         =,  dejs:format
         |=  obj=json
-        ;;  file
-        :-  our.bowl  ::we are the owners of the files
-        :-  %private  ::automatically set gossip level to private
+        ;;  $:(cid=cid name=@t tags=(list tag) islink=?(%.y %.n))
         %.  obj
         %-  ot
         :~  [%cid so]
@@ -168,14 +182,21 @@
             [%tags (ar (ot ~[id+so name+so slatename+so]))]
             [%'isLink' bo]
         ==
+      ::  merge the fetched files with our files 
+      ::  don't just overwrite so we don't lose gossip-received data
+      ::
+      `this(files (uni:files-orm files (malt (turn fetched-files |=([=file] [cid.file file])))))
+      ::  emit gossip cards of those files that are new and have the right privacy setting.
+      ::
+      ::%+  turn
+      ::  %+  skim
+      ::    %+  skim
+      ::      fetched-files
+      ::    (curr |=([f=file fs=^files] %.y) *files)
+      ::  |=(f=file |(=(privacy.q.f %pals) =(privacy.q.f %public)))
+      ::|=(f=file [%give %fact [/~/gossip/source]~ %file !>(f)])
     ==
   ==
 ::
 ++  on-fail   on-fail:default
-
---
-|%
-::  shorthand for mop function usage
-::
-++  files-orm  ((on cid file) gth)
 --
