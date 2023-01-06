@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
+import { formatFileExt, getSlateSource } from '../utils';
+import * as Type from '../types/pantheon';
+
 interface FilePreviewProps {
   file?: File;
+}
+
+interface FileViewProps {
+  file: Type.ScryFile;
+  type: "thumbnail" | "preview" | "fullscreen";
+  className?: string;
 }
 
 // Source: https://blog.logrocket.com/using-filereader-api-preview-images-react
@@ -29,7 +38,53 @@ export const FilePreview = ({file}: FilePreviewProps) => {
       }
     }, [file]);
 
-    return (
+    return !(file && !file.type.startsWith("image")) ? (
       <img className="image-preview" src={previewURL} />
+    ) : (
+      <div className="flex justify-center image-preview">
+        <div className="flex items-end">
+          <h1>.{formatFileExt(file)}</h1>
+        </div>
+      </div>
     );
+};
+
+export const FileView = ({file, type, className}: FileViewProps) => {
+  // TODO: Fix this hack by including the file MIME type provided by
+  // the Slate API (as object['type'], which corresponds to 'file.type').
+  const isFileImage: boolean = (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i).test(file.name);
+
+  switch(type) {
+    case "fullscreen":
+      return isFileImage ? (
+        <img className="object-cover object-center mx-auto" src={getSlateSource(file)} />
+      ) : (
+        <div className="flex justify-center h-screen">
+          <div className="flex items-center">
+            <h1>No File Preview Available!</h1>
+          </div>
+        </div>
+      );
+    case "preview":
+      return isFileImage ? (
+        <img className="image-preview" src={getSlateSource(file)} />
+      ) : (
+        <div className="flex justify-center image-preview">
+          <div className="flex items-end">
+            <h1>.{formatFileExt(file)}</h1>
+          </div>
+        </div>
+      );
+    default: // case "thumbnail":
+      return isFileImage ? (
+        <img className="object-cover object-center h-64 w-11/12 mx-auto border border-bgs1"
+           src={getSlateSource(file)} />
+      ) : (
+        <div className="flex justify-center h-64 w-11/12 mx-auto border border-bgs1">
+          <div className="flex items-end">
+            <h1>.{formatFileExt(file)}</h1>
+          </div>
+        </div>
+      );
+  }
 };

@@ -6,7 +6,7 @@ import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid'
 import api from '../api';
 import { useKey } from '../components/KeyContext';
 import { TagField } from '../components/Fields';
-import { FilePreview } from '../components/Files';
+import { FileView, FilePreview } from '../components/Files';
 import { SplashNavBar, UploadNavBar, FocusNavBar } from '../components/NavBar';
 
 import {
@@ -45,24 +45,6 @@ export const Gallery = () => {
   // match margins between items and the edge of the screen.
 
   const GalleryEntry = (file: Type.ScryFile) => {
-    let fileSource: string = "";
-    let fileDesc: React.ReactNode | null = null;
-    // TODO: Implement this once the format for link data has been finalized.
-    switch("file") {
-      // case "link":
-      //   fileSource = Const.ASSET_PATH + "plus-sign.svg";
-      //   fileDesc = null;
-      //   break;
-      default: // case "file":
-        fileSource = getSlateSource(file);
-        fileDesc = (
-          <React.Fragment>
-            <h2>{file.name}</h2>
-            <p>{formatFileExt(file)}</p>
-          </React.Fragment>
-        );
-    }
-
     const focusFile = useCallback(() => {
       params.set("i", file.cid);
       setParams(params.toString());
@@ -70,13 +52,11 @@ export const Gallery = () => {
 
     return (
       <div className="hover:cursor-pointer" onClick={focusFile}>
-        <img className="object-cover object-center h-64 w-11/12 mx-auto border border-bgs1"
-          src={fileSource} />
-        {fileDesc && (
-          <div className="border-x border-b border-bgs1 w-11/12 mx-auto px-2">
-            {fileDesc}
-          </div>
-        )}
+        <FileView file={file} type={"thumbnail"} />
+        <div className="border-x border-b border-bgs1 w-11/12 mx-auto px-2">
+          <h2>{file.name}</h2>
+          <p>{formatFileExt(file)}</p>
+        </div>
       </div>
     );
   };
@@ -127,14 +107,14 @@ export const Gallery = () => {
 
     if(mode === "simple") {
       return (
-        <img className="object-cover object-center mx-auto" src={getSlateSource(file)} />
+        <FileView file={file} type={"fullscreen"} />
       );
     } else { // if(mode === "detail")
       return (
         <form className="py-4 px-4" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 overflow-y-auto">
             <div className="flex-none">
-              <img className="image-preview" src={getSlateSource(file)} />
+              <FileView file={file} type={"preview"} />
             </div>
             <div className="flex-1">
               <div>
@@ -246,8 +226,7 @@ export const Gallery = () => {
           <div className="flex-none">
             <FilePreview file={file} />
             <label className="input-file mt-3">
-              {/*TODO: Extend the accepted file types to plaintext and PDF: ,.pdf,.md,.txt.*/}
-              <input type="file" accept="image/*"
+              <input type="file" accept="image/*,.pdf,.md,.txt"
                 {...register("upload", {required: true, onChange: onFileChange})} />
               Choose File
             </label>
