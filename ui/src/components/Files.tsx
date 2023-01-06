@@ -52,14 +52,18 @@ export const FilePreview = ({file}: FilePreviewProps) => {
 export const FileView = ({file, type, className}: FileViewProps) => {
   // TODO: Fix this hack by including the file MIME type provided by
   // the Slate API (as object['type'], which corresponds to 'file.type').
+  // TODO: Fix the hacks in here where the manually-calculated size of
+  // the navbar is used to adjust the calculated height (i.e. 53px).
   const isFileImage: boolean = (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i).test(file.name);
 
   switch(type) {
     case "fullscreen":
       return isFileImage ? (
-        <img className="object-cover object-center mx-auto" src={getSlateSource(file)} />
+        <div className="flex h-[calc(100vh-53px)]">
+          <img className="object-scale-down object-center mx-auto" src={getSlateSource(file)} />
+        </div>
       ) : (
-        <div className="flex justify-center h-screen">
+        <div className="flex justify-center h-[calc(100vh-53px)]">
           <div className="flex items-center">
             <h1>No File Preview Available!</h1>
           </div>
