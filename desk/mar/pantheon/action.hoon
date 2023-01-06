@@ -11,6 +11,7 @@
      %-  of
      :~  [%add-key (ot ~[key+so])]
          [%sync-files (ot ~[merge+so])]
+         [%edit-files (ot ~[slatename+so cid+so priv+so name+so])]
      ==
   --
 ++  grow

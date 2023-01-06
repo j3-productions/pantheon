@@ -46,14 +46,12 @@
 +$  query
   $%  [%key =key]
       [%files =files]
-      [%search result=(list file)]
+      [%search =files]
   ==
 +$  action
   $%  [%add-key =key]
       [%sync-files merge=merge-strategy]
-      [%upload-files ~]
-      [%delete-files ~]
-      [%edit-metadata ~]
+      [%edit-metadata slatename=@t cid=cid priv=? name=@t]
   ==
 :: +$  update
 ::   $%  :: TODO

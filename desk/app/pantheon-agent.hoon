@@ -5,8 +5,7 @@
 /-  *pantheon
 /+  default-agent, dbug, agentio, *pantheon
 ::
-::
-:: here
+:: :: here
   |%
   +$  versioned-state
     $%  state-0
@@ -66,15 +65,16 @@
             [%i %request http-files *outbound-config:iris]
         ==
       ::
-          %delete-files
-        `this
-      ::
-          %upload-files
-        `this
-      ::
           %edit-metadata  :: includes privacy
-        :: Send HTTP GET REQUEST -> HANDLE IN ON-ARVO -> SELF-POKE
-        `this
+        :: Send HTTP GET REQUEST -> HANDLE IN ON-ARVO -> EMIT ARVO CARD
+      ::  `this
+        =/  http-files=request:http
+          :^  %'GET'  'https://slate.host/api/v3/get'
+          ~[['content-type' 'application/json'] ['Authorization' key]]  ~
+        :_  this
+        :~  %-  ~(arvo pass:io /edit/(scot %tas slatename.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+            [%i %request http-files *outbound-config:iris]
+        ==
       ==
     ==
   ::
@@ -88,14 +88,12 @@
         [%x %files ~]
       ``pantheon-query+!>(`query`[%files files])
     ::
-    ::  %x %search name /ext public tags
-        [%x %search @ @ @ @ ~]
-      =/  name=@t  -.+.+.path
-      =/  ext=@t  -.+.+.+.path
-      =/  public=@t  -.+.+.+.+.path
-      =/  tag=@t  -.+.+.+.+.+.path
-      ``pantheon-query+!>(`query`[%search (search name ext public tag)])
-    ::
+    ::  %x %search name /ext public
+        [%x %search @ @ @ ~]
+      =/  name  -.+.+.path
+      =/  ext  -.+.+.+.path
+      =/  priv  -.+.+.+.+.path
+      ``pantheon-query+!>(`query`[%files (search name ext priv)])
     ==
   ::
   ++  on-watch  on-watch:default
@@ -116,9 +114,7 @@
         =+  jon=(de-json:html `@t`q.data.u.res)
         ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
         ::  TODO: Is there a better way to do this (maybe using marks)?
-        ::  J: purpose of this sequence is to grab 'cols'
         ?>  ?=([%o *] u.jon)
-        ~&  >  jon
         =+  cols=(~(got by p.u.jon) 'collections')
         ?>  ?=([%a *] cols)
         =+  col=(snag 0 p.cols)
@@ -143,9 +139,34 @@
             [%name so]
             [%tags (ar (ot ~[id+so name+so slatename+so]))]
             [%type so]
-            [%'isPublic' bo]
             [%'isLink' bo]
+            [%'isPublic' bo]
         ==
+      ==
+        [%edit @ @ @ @ ~]
+      ?+    sign-arvo  (on-arvo:default wire sign-arvo)
+          [%iris %http-response %finished *]
+        =+  res=full-file.client-response.sign-arvo
+        ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
+        =+  jon=(de-json:html `@t`q.data.u.res)
+        ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
+        ?>  ?=([%o *] u.jon)
+        =+  cols=(~(got by p.u.jon) 'collections')
+        ?>  ?=([%a *] cols)
+        =+  col=(snag 0 p.cols)
+        ?>  ?=([%o *] col)
+        =+  slatename=(~(got by p.col) 'slatename')
+        ?>  ?=([%s *] slatename)
+        ~&  >  p.slatename 
+        =+  objs=(~(got by p.col) 'objects')
+        ?>  ?=([%a *] objs)
+        ~&  >  objs
+        =+  fil=(snag 0 p.objs)
+        ~&  >  fil
+        ?>  ?=([%o *] fil)
+        ~&  >  (~(got by p.fil) 'filename')
+        ~&  >  (~(put by p.fil) 'filename' [%s p='somefile'])
+        `this
       ==
     ==
   ::
@@ -155,21 +176,20 @@
 ::  helper core
 |%  
 ++  search 
-  |=  [name=?(~ @t) ext=?(~ @t) public=@t tag=?(~ @t)]
-  ^-  (list file)  
-  ~&  >  name
+  |=  [name=@t ext=@t vis=@ta]
+  ^-  ^files
   ::  grab files
+  %-  malt
   %+  skim
-    ~(val by files)
-  |=  v=file
-  ~&  =(name.v name)
-  ~&  tag
+      (tap:on-files files)
+  |=  [key=cid val=file]
   ^-  @f
-  ?&  ?~  name  %&  (find-name name name.v)
-      ?~  ext  %&  (find-ext ext type.v)
-      ?~  tag  %&  (find-tags tag tags.v)
+  ?&  ?:(=(vis %public) ispublic.val !ispublic.val)
+      ?|  (find-name name name.val)
+          (find-ext ext type.val)
+      ==
   ==
+  
 ++  find-name  |=([a=@t b=@t] =(a b))
 ++  find-ext  |=([a=@t b=@t] =(a +:(scan (trip b) ;~((glue fas) sym sym))))
-++  find-tags  |=([a=@t b=(list tag)] =(a (snag 0 b)))
 --
