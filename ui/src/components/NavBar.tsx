@@ -115,7 +115,7 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
             <React.Fragment>
               <input type="text" placeholder="Search extension..."
                 value={queryExtension} onChange={onChangeExtension} onKeyDown={onKeyDown} />
-              <select onChange={onChangePrivacy}>
+              <select onChange={onChangePrivacy} defaultValue={queryPrivacy}>
                 <option value="">No Privacy Filter</option>
                 <option value="private">Private</option>
                 <option value="protected">Protected (Pals)</option>
