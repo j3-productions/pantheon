@@ -45,6 +45,10 @@ export function mergeDeep(
   return output;
 }
 
+//////////////////////////////
+/// App-Specific Functions ///
+//////////////////////////////
+
 export function formatFileExt(file: File | Type.ScryFile): string {
   if(file instanceof File) {
     const formatMatches = file.type.match(/([^\/]+\/)?([^\/]+)/);
@@ -56,8 +60,16 @@ export function formatFileExt(file: File | Type.ScryFile): string {
   }
 }
 
+export const encodeQueryParams = (queryParams: [string, string, string]): string => {
+  return encodeURIComponent(queryParams.join("/"))
+};
+
+export const decodeQueryParams = (queryString: string): [string, string, string] => {
+  return (decodeURIComponent(queryString).split("/") as [string, string, string]);
+};
+
 //////////////////////////////
-/// App-Specific Functions ///
+/// External API Functions ///
 //////////////////////////////
 
 export const getSlateSource = (file: Type.ScryFile): string => (

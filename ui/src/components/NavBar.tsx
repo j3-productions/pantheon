@@ -1,10 +1,10 @@
-import React, { ChangeEvent, KeyboardEvent, useState, useCallback } from 'react';
+import React, { ChangeEvent, KeyboardEvent, useState, useCallback, useRef } from 'react';
 import { redirect, Link } from 'react-router-dom';
 import type { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
   HomeIcon, DocumentPlusIcon,
-  ChevronLeftIcon, ChevronRightIcon,
+  ChevronUpIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon,
   PhotoIcon, InformationCircleIcon, PencilSquareIcon,
   Cog6ToothIcon, MagnifyingGlassIcon, XMarkIcon
 } from '@heroicons/react/24/solid';
@@ -12,6 +12,7 @@ import {
 import api from '../api';
 import { useKey } from '../components/KeyContext';
 
+import { encodeQueryParams, decodeQueryParams } from '../utils';
 import * as Type from '../types/pantheon';
 import * as Const from '../constants';
 
@@ -31,35 +32,51 @@ interface FocusNavBarProps extends NavBarProps {
 }
 
 export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) => {
-  const [query, setQuery] = useState<string>(params.get("q") || "");
+  const prevQueryParams = decodeQueryParams(params.get("q") || "");
+
+  const [queryName, setQueryName] = useState<string>(prevQueryParams[0]);
+  const [queryExtension, setQueryExtension] = useState<string>(prevQueryParams[1]);
+  const [queryPrivacy, setQueryPrivacy] = useState<Type.PrivacyFilter>((prevQueryParams[2] as Type.PrivacyFilter));
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
+  const onChange = (queryParam: string, setQueryParam: (s: string) => void) => (
+    useCallback((event: ChangeEvent<HTMLInputElement>) => {
+      const {value}: {value: string;} = event.target;
+      setQueryParam(value.replace(/\//g, ""));
+    }, [queryParam, setQueryParam])
+  );
+  const onChangeName = onChange(queryName, setQueryName);
+  const onChangeExtension = onChange(queryExtension, setQueryExtension);
+  const onChangePrivacy = useCallback((event: ChangeEvent<HTMLSelectElement>) => {
+    const {value}: {value: string;} = event.target;
+    setQueryPrivacy((value as Type.PrivacyFilter));
+  }, [queryPrivacy, setQueryPrivacy]);
+
   const submitQuery = useCallback(() => {
-    if(query !== "") {
+    const queryParams: [string, string, string] = [queryName, queryExtension, queryPrivacy];
+    if(queryParams.find(param => param !== "")) {
       params.delete("i");
-      params.set("q", query);
+      params.set("q", encodeQueryParams(queryParams));
       setParams(params.toString());
     }
-  }, [query, params, setParams]);
+  }, [queryName, queryExtension, queryPrivacy, params, setParams]);
   const submitFile = useCallback(() => {
     params.set("i", "");
     setParams(params.toString());
   }, [params, setParams]);
 
-  // TODO: Add support for queries based on parameters (either via
-  // special syntax or by a drop-down/pop-up dialog).
-
-  const onChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const {value}: {value: string;} = event.target;
-    setQuery(value);
-  }, [query, setQuery]);
   const onKeyDown = useCallback((event: KeyboardEvent<HTMLInputElement>) => {
     if(event.key === "Enter") {
       event.preventDefault();
       submitQuery();
     }
   }, [submitQuery]);
-  const onClick = useCallback(() => {
+  const onSubmit = useCallback(() => {
     submitQuery();
   }, [submitQuery]);
+  const toggleExpand = useCallback(() => {
+    setIsExpanded(!isExpanded);
+  }, [isExpanded, setIsExpanded]);
 
   /* TODO: Add configuration screen for the official release.
         <button>
@@ -80,12 +97,31 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
         <button onClick={submitFile}>
           <DocumentPlusIcon />
         </button>
-        <div className="flex-1 min-w-0 input-group">
-          <input type="text" placeholder="Search..."
-              value={query} onChange={onChange} onKeyDown={onKeyDown} />
-          <button onClick={onClick} >
-            <MagnifyingGlassIcon />
-          </button>
+        <div className="grid gap-2 grid-cols-1 overflow-y-auto flex-1 min-w-0">
+          <div className="flex-1 min-w-0 input-group">
+            <div className="flex flex-1 min-w-0 relative items-center input-group">
+              <input type="text" placeholder="Search name..."
+                value={queryName} onChange={onChangeName} onKeyDown={onKeyDown} />
+              {isExpanded ?
+                (<ChevronUpIcon className="icon-control" onClick={toggleExpand} />) :
+                (<ChevronDownIcon className="icon-control" onClick={toggleExpand} />)
+              }
+            </div>
+            <button onClick={onSubmit} >
+              <MagnifyingGlassIcon />
+            </button>
+          </div>
+          {isExpanded && (
+            <React.Fragment>
+              <input type="text" placeholder="Search extension..."
+                value={queryExtension} onChange={onChangeExtension} onKeyDown={onKeyDown} />
+              <select onChange={onChangePrivacy}>
+                <option value="">No Privacy Filter</option>
+                <option value="private">Private</option>
+                <option value="protected">Protected (Pals)</option>
+              </select>
+            </React.Fragment>
+          )}
         </div>
       </div>
     </nav>
@@ -158,7 +194,7 @@ export const FocusNavBar =
           </button>
         </div>
         {/* Center Nav */}
-        <div className="flex flex-row items-center">
+        <div className="flex flex-row items-center hidden sm:block">
           <h2>{files[1]?.name}</h2>
         </div>
         {/* Right Nav */}

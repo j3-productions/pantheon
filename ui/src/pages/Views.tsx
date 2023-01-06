@@ -9,12 +9,12 @@ import { TagField } from '../components/Fields';
 import { FilePreview } from '../components/Files';
 import { SplashNavBar, UploadNavBar, FocusNavBar } from '../components/NavBar';
 
-import * as Type from '../types/pantheon';
-import * as Const from '../constants';
 import {
   enumerateObject, formatFileExt,
   getSlateSource, uploadSlateFile
 } from '../utils';
+import * as Type from '../types/pantheon';
+import * as Const from '../constants';
 
 interface GalleryViewProps {
   files: Type.ScryFiles;
@@ -127,7 +127,7 @@ export const Gallery = () => {
 
     if(mode === "simple") {
       return (
-        <img className="object-cover object-center" src={getSlateSource(file)} />
+        <img className="object-cover object-center mx-auto" src={getSlateSource(file)} />
       );
     } else { // if(mode === "detail")
       return (
@@ -141,7 +141,7 @@ export const Gallery = () => {
                 <label htmlFor="name">File Name</label>
                 <div className="flex items-center space-x-2">
                   <input value={name} disabled={isViewing}
-                    {...register("name", {required: !isViewing, pattern: Const.FILENAME_REGEX, onChange: onNameChange})} />
+                    {...register("name", {required: !isViewing && name !== file.name, pattern: Const.FILENAME_REGEX, onChange: onNameChange})} />
                 </div>
               </div>
               <div className="flex flex-row justify-center">
@@ -181,6 +181,9 @@ export const Gallery = () => {
           <div className='pt-3'>
             <div className='flex justify-between border-t border-bgs1 py-3'>
               <button>
+                {/* FIXME: Due to CORS, this will just open the file in a browser window.
+                  https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a#attr-download
+                */}
                 <a href={getSlateSource(file)} download>
                   Download
                 </a>

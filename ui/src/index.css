@@ -105,6 +105,10 @@ input:disabled, div > select:disabled {
     @apply object-cover object-center w-full aspect-square rounded-lg border-2 border-dashed border-fgp1/60;
 }
 
+.icon-control {
+    @apply absolute right-2 h-5 w-5 cursor-pointer;
+}
+
 .hover-trigger .hover-target {
     display: none;
 }
