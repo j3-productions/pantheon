@@ -3,7 +3,7 @@ import { redirect, Link } from 'react-router-dom';
 import type { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import {
-  HomeIcon, DocumentPlusIcon,
+  HomeIcon, DocumentPlusIcon, UserIcon,
   ChevronUpIcon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon,
   PhotoIcon, InformationCircleIcon, PencilSquareIcon,
   Cog6ToothIcon, MagnifyingGlassIcon, XMarkIcon
@@ -32,11 +32,12 @@ interface FocusNavBarProps extends NavBarProps {
 }
 
 export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) => {
-  const prevQueryParams = decodeQueryParams(params.get("q") || "");
+  const prevQueryParams: Type.QueryParams = decodeQueryParams(params.get("q") || "///");
 
   const [queryName, setQueryName] = useState<string>(prevQueryParams[0]);
   const [queryExtension, setQueryExtension] = useState<string>(prevQueryParams[1]);
   const [queryPrivacy, setQueryPrivacy] = useState<Type.PrivacyFilter>((prevQueryParams[2] as Type.PrivacyFilter));
+  const [queryAuthor, setQueryAuthor] = useState<string>(prevQueryParams[3]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   const onChange = (queryParam: string, setQueryParam: (s: string) => void) => (
@@ -51,15 +52,17 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
     const {value}: {value: string;} = event.target;
     setQueryPrivacy((value as Type.PrivacyFilter));
   }, [queryPrivacy, setQueryPrivacy]);
+  const onChangeAuthor = onChange(queryAuthor, setQueryAuthor);
 
   const submitQuery = useCallback(() => {
-    const queryParams: [string, string, string] = [queryName, queryExtension, queryPrivacy];
+    const queryParams: Type.QueryParams =
+      [queryName, queryExtension, queryPrivacy, queryAuthor];
     if(queryParams.find(param => param !== "")) {
       params.delete("i");
       params.set("q", encodeQueryParams(queryParams));
       setParams(params.toString());
     }
-  }, [queryName, queryExtension, queryPrivacy, params, setParams]);
+  }, [queryName, queryExtension, queryPrivacy, queryAuthor, params, setParams]);
   const submitFile = useCallback(() => {
     params.set("i", "");
     setParams(params.toString());
@@ -77,6 +80,9 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
   const toggleExpand = useCallback(() => {
     setIsExpanded(!isExpanded);
   }, [isExpanded, setIsExpanded]);
+  const autofillAuthor = useCallback(() => {
+    setQueryAuthor(`~${api.ship}`);
+  }, [queryAuthor, setQueryAuthor]);
 
   /* TODO: Add configuration screen for the official release.
         <button>
@@ -119,7 +125,13 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
                 <option value="">No Privacy Filter</option>
                 <option value="private">Private</option>
                 <option value="protected">Protected (Pals)</option>
+                <option value="public">Public</option>
               </select>
+              <div className="flex flex-1 min-w-0 relative items-center">
+                <input type="text" placeholder="Search author..."
+                  value={queryAuthor} onChange={onChangeAuthor} onKeyDown={onKeyDown} />
+                <UserIcon className="icon-control" onClick={autofillAuthor} />
+              </div>
             </React.Fragment>
           )}
         </div>
