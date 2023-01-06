@@ -60,12 +60,12 @@ export function formatFileExt(file: File | Type.ScryFile): string {
   }
 }
 
-export const encodeQueryParams = (queryParams: [string, string, string]): string => {
+export const encodeQueryParams = (queryParams: Type.QueryParams): string => {
   return encodeURIComponent(queryParams.join("/"))
 };
 
-export const decodeQueryParams = (queryString: string): [string, string, string] => {
-  return (decodeURIComponent(queryString).split("/") as [string, string, string]);
+export const decodeQueryParams = (queryString: string): Type.QueryParams => {
+  return (decodeURIComponent(queryString).split("/") as Type.QueryParams);
 };
 
 //////////////////////////////

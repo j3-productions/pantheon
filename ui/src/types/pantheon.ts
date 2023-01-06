@@ -65,9 +65,11 @@ export interface PokeKey extends ScryKey {}
 // Other Types //
 /////////////////
 
+export type QueryParams = [string, string, string, string];
+
 export type GalleryMode = "simple" | "detail";
-export type PrivacySetting = "protected" | "private"; // "public"
-export type PrivacyFilter = PrivacySetting | ""; // "public"
+export type PrivacySetting = "protected" | "private" | "public";
+export type PrivacyFilter = PrivacySetting | "";
 
 export interface FieldOption {
   readonly label: string;

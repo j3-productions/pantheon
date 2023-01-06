@@ -152,6 +152,7 @@ export const Gallery = () => {
                   <select onChange={onPrivacyChange} disabled={isViewing}>
                     <option value="private">Private</option>
                     <option value="protected">Protected (Pals)</option>
+                    <option value="public">Public</option>
                   </select>
                 </div>
               </div>
