@@ -1,4 +1,4 @@
-::
+::  her
 ::  app/pantheon-agent
 ::
 ::  TODO: Add permissions surrounding the 'key' value.
@@ -84,11 +84,9 @@
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
         :_  this(files (~(put by files) cid.act nu))
-        ?.  &((is-new nu files) ?!(=(priv.act %private)))
-          :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
-              [%i %request http-files *outbound-config:iris]
-          ==
-        :-  [(fact:io file+!>(nu) ~[/~/gossip/source])]
+        :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+            [%i %request http-files *outbound-config:iris]
+        ==
       ==
     ==
   ::
@@ -276,6 +274,7 @@
         =+  res=full-file.client-response.sign-arvo
         ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
         =+  jon=(de-json:html `@t`q.data.u.res)
+        ~&  >  jon
         `this
       ==
     ==
