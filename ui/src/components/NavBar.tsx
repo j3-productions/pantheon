@@ -60,9 +60,10 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
     if(queryParams.find(param => param !== "")) {
       params.delete("i");
       params.set("q", encodeQueryParams(queryParams));
+      setIsExpanded(false);
       setParams(params.toString());
     }
-  }, [queryName, queryExtension, queryPrivacy, queryAuthor, params, setParams]);
+  }, [queryName, queryExtension, queryPrivacy, queryAuthor, params, setParams, setIsExpanded]);
   const submitFile = useCallback(() => {
     params.set("i", "");
     setParams(params.toString());
