@@ -14,6 +14,9 @@
   $:  cid=cid
       name=@t
       tags=(list tag)
+      type=@t
+      islink=?(%.y %.n)
+      ispublic=?(%.y %.n)
 ::    blurhash=(unit @t)
 ::    body=@t
 ::    cover-image=(unit @t)
@@ -21,15 +24,11 @@
 ::    download-count=@ud
 ::    save-count=@ud
 ::    size=@ud
-::    filename=@t
 ::    id=@t
-::    is-public=@f
 ::    owner-id=@t
 ::    url=@t
 ::    :: TODO: This probably exists as an enumerated sequence somewhere.
-::    type=@t
 ::    :: TODO: This could all probably be combined into a single type w/ a unit.
-::    is-link=@f
 ::    link-author=(unit @t) :: (unit @p)?
 ::    link-body=(unit @t)
 ::    link-domain=(unit @t) :: web address
@@ -47,10 +46,12 @@
 +$  query
   $%  [%key =key]
       [%files =files]
+      [%search =files]
   ==
 +$  action
   $%  [%add-key =key]
       [%sync-files merge=merge-strategy]
+      [%edit-metadata slatename=@t cid=cid priv=? name=@t]
   ==
 :: +$  update
 ::   $%  :: TODO
