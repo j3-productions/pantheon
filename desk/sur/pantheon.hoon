@@ -12,7 +12,7 @@
       slatename=@t
   ==
 +$  file
-  $:  owner=@p 
+  $:  owner=@p
       privacy=gossip-privacy
       cid=cid
       name=@t
@@ -49,7 +49,6 @@
 +$  query
   $%  [%key =key]
       [%files =files]
-      [%search =files]
   ==
 +$  action
   $%  [%add-key =key]
