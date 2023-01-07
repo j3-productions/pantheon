@@ -93,7 +93,6 @@
   ++  on-peek
     |=  =path
     ^-  (unit (unit cage))
-    ~&  >  path
     ?+    path  (on-peek:default path)
         [%x %key ~]
       ``pantheon-query+!>(`query`[%key key])
@@ -123,7 +122,7 @@
     %+  skim
       (tap:on-files files)
     |=(f=[p=cid q=file] |(&(=(privacy.q.f %pals) =(owner.q.f our.bowl)) =(privacy.q.f %public)))
-  |=(f=[p=cid q=file] [%give %fact ~ %file !>(q.f)])
+  |=(f=[p=cid q=file] (fact-init:io file+!>(q.f)))
   ::
   ++  on-leave  on-leave:default
   ::
@@ -140,7 +139,7 @@
   ::  gossip out a received file if it is public and we haven't seen it before.
   ::
   :-  ?.  &((is-new file files) =(privacy.file %public))  ~
-      [[%give %fact [/~/gossip/source]~ %file !>(file)] ~]
+       ~[(fact:io file+!>(file) ~[/~/gossip/source])]
   this(files (put:on-files files cid.file file))
   ::
   ++  on-arvo
@@ -206,7 +205,7 @@
       ::      fetched-files
       ::    (curr |=([f=file fs=^files] %.y) *files)
       ::  |=(f=file |(=(privacy.q.f %pals) =(privacy.q.f %public)))
-      ::|=(f=file [%give %fact [/~/gossip/source]~ %file !>(f)])
+      ::|=(f=file (fact:io file+!>(f) ~[/~/gossip/source]))
     ==
       ::
         [%edit @ @ @ @ ~]
