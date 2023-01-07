@@ -84,8 +84,13 @@
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
         :_  this(files (put:on-files files cid.act nu))
+        ?.  &((is-new nu files) ?!(=(priv.act %private)))
+          :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+              [%i %request http-files *outbound-config:iris]
+          ==
+        :-  [(fact:io file+!>(nu) ~[/~/gossip/source])]
         :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
-            [%i %request http-files *outbound-config:iris]
+              [%i %request http-files *outbound-config:iris]
         ==
       ==
     ==
@@ -203,7 +208,7 @@
       ::  %+  skim
       ::    %+  skim
       ::      fetched-files
-      ::    (curr |=([f=file fs=^files] %.y) *files)
+      ::    (curr is-new files)
       ::  |=(f=file |(=(privacy.q.f %pals) =(privacy.q.f %public)))
       ::|=(f=file (fact:io file+!>(f) ~[/~/gossip/source]))
     ==
