@@ -10,6 +10,7 @@ import api from './api';
 import { KeyEntry, AppConfig } from './pages/Forms';
 import { Gallery } from './pages/Views';
 
+import { decodeQueryParams, getSlateSource } from './utils';
 import * as Type from './types/pantheon';
 import * as Const from './constants';
 
@@ -35,7 +36,7 @@ export function App() {
 const AppRouter = () => {
   const [key, resetKey] = useKey();
 
-  const loadBase: RRDLoaderFun = async ({request, params}) => {
+  const loadBase: RRDLoaderFun = async ({request}) => {
     const url: string = (new URL(request.url)).pathname;
     if(key === undefined) {
       return 0;
@@ -48,8 +49,7 @@ const AppRouter = () => {
     }
   };
 
-  const loadGallery: RRDLoaderFun = async ({request, params}) => (
-    // TODO: Use 'params.get("q")' to send a file search query.
+  const loadGallery: RRDLoaderFun = async ({request}) => (
     api.poke<any>({
       app: "pantheon-agent",
       mark: "pantheon-action",
@@ -59,9 +59,16 @@ const AppRouter = () => {
         setTimeout(resolve, 2000);
         return result;
       })
-    ).then((result: any) =>
-      api.scry<Type.ScryFile[]>({app: 'pantheon-agent', path: '/files'})
-    )
+    ).then((result: any) => {
+      const queryString = new URL(request.url).searchParams.get("q");
+      const queryParams: Type.QueryParams = decodeQueryParams(queryString || "///");
+      return api.scry<Type.ScryFile[]>({
+        app: "pantheon-agent",
+        path: (typeof queryString !== "string") ?
+          "/files" :
+          "/search/" + queryParams.slice(0, 3).join("/")
+      })
+    })
   );
   // NOTE: Only reload gallery data when (1) navigating from another URL,
   // (2) submitting a different search query, or (3) uploading a file.
