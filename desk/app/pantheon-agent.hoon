@@ -3,7 +3,7 @@
 ::
 ::  TODO: Add permissions surrounding the 'key' value.
 /-  *pantheon
-/+  default-agent, dbug, agentio, *pantheon, gossip
+/+  default-agent, dbug, agentio, gossip
 /$  grab-file  %noun  %pantheon-file
 ::
 :: :: here
@@ -24,11 +24,11 @@
   %-  agent:dbug
   =|  state-0
   =*  state  -
-::  %-  %+  agent:gossip
-::      [1 %anybody %anybody]
-::    %+  ~(put by *(map mark $-(* vase)))
-::      %file
-::    |=(n=* !>((grab-file n)))
+  :: %-  %+  agent:gossip
+  ::     [1 %mutuals %mutuals]
+  ::   %+  ~(put by *(map mark $-(* vase)))
+  ::     %file
+  ::   |=(n=* !>((grab-file n)))
   ^-  agent:gall
   =<
   |_  =bowl:gall
@@ -84,9 +84,11 @@
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
         :_  this(files (~(put by files) cid.act nu))
-        :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
-            [%i %request http-files *outbound-config:iris]
-        ==
+        ?.  &((is-new nu files) ?!(=(priv.act %private)))
+          :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+              [%i %request http-files *outbound-config:iris]
+          ==
+        :-  [(fact:io file+!>(nu) ~[/~/gossip/source])]
       ==
     ==
   ::
@@ -156,11 +158,11 @@
       ::  TODO: Is there a better way to do this (maybe using marks)?
       ::  J: purpose of this sequence is to grab 'cols'
       ?>  ?=([%o *] u.jon)
-      ~&  >  u.jon
+      ~&  >  '%pantheon: syncing files'  :: u.jon
       =+  cols=(~(got by p.u.jon) 'collections')
       ?>  ?=([%a *] cols)
       =+  cols=p.cols
-      =/  fetched-files=(list file) 
+      =/  fetched-files=(list file)
       %-  turn  :_
                 ::  grab previous privacy setting if exists, otherwise private
                 ::  add owner as us, since we fetched from our slate.
@@ -189,11 +191,18 @@
         %-  ot
         :~  [%cid so]
             [%name so]
-            [%tags (ar (ot ~[id+so name+so slatename+so]))]
+            :: NOTE: This is necessary because the 'tags' field on the
+            :: JSON data can be either a list of tags or null; this
+            :: catches the null case and returns it as an empty list.
+            :-  %tags
+            |=  j=json
+            ^-  (list tag)
+            ?.  ?=([%a *] j)  ~
+            ((ar (ot ~[id+so name+so slatename+so])) j)
             [%type so]
             [%'isLink' bo]
         ==
-      ::  merge the fetched files with our files 
+      ::  merge the fetched files with our files
       ::  don't just overwrite so we don't lose gossip-received data
       ::
       `this(files (~(uni by files) (malt (turn fetched-files |=([=file] [cid.file file])))))
@@ -203,7 +212,7 @@
       ::  %+  skim
       ::    %+  skim
       ::      fetched-files
-      ::    (curr |=([f=file fs=^files] %.y) *files)
+      ::    (curr is-new files)
       ::  |=(f=file |(=(privacy.q.f %pals) =(privacy.q.f %public)))
       ::|=(f=file (fact:io file+!>(f) ~[/~/gossip/source]))
     ==
@@ -275,7 +284,7 @@
   --
 ::
 ::  helper core
-|%  
+|%
 ++  is-new
   |=  [f=file fs=^files]
   ^-  ?(%.y %.n)
@@ -283,7 +292,7 @@
   ?~  existing
     %.y
   ?!(=((need existing) f))
-++  search 
+++  search
   |=  [name=@t ext=@t priv=@tas own=(unit @p)]
   ^-  ^files
   ::  grab files
@@ -298,7 +307,7 @@
       ?~  own  %&  (find-own (need own) owner.val)
   ==
  ::  Setting these as arms rather than inline because I expect them to grow
- ::  more complex once we expand search capabilities 
+ ::  more complex once we expand search capabilities
 ++  find-name  |=([a=@t b=@t] =(a b))
 ++  find-ext  |=([a=@t b=@t] =(a +:(scan (trip b) ;~((glue fas) sym sym))))
 ++  find-own  |=([a=@p b=@p] =(a b))
