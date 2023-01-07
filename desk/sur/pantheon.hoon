@@ -5,18 +5,21 @@
 +$  key  @t
 +$  cid  @t
 +$  merge-strategy  ?(%ours %theirs %union %intersect)
++$  gossip-privacy  ?(%private %pals %public)
 +$  tag
   $:  id=@t
       name=@t
       slatename=@t
   ==
 +$  file
-  $:  cid=cid
+  $:  owner=@p 
+      privacy=gossip-privacy
+      cid=cid
       name=@t
       tags=(list tag)
       type=@t
       islink=?(%.y %.n)
-      ispublic=?(%.y %.n)
+::    ispublic=?(%.y %.n)
 ::    blurhash=(unit @t)
 ::    body=@t
 ::    cover-image=(unit @t)
@@ -51,7 +54,7 @@
 +$  action
   $%  [%add-key =key]
       [%sync-files merge=merge-strategy]
-      [%edit-metadata slatename=@t cid=cid priv=? name=@t]
+      [%edit-metadata slate-id=@t cid=cid priv=gossip-privacy name=@t]
   ==
 :: +$  update
 ::   $%  :: TODO
