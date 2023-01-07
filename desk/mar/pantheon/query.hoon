@@ -21,7 +21,9 @@
       |=  [=cid:pantheon =file:pantheon]
       :-  cid
       %-  pairs
-      :~  ['cid' s+cid.file]
+      :~  ['owner' (ship owner.file)]
+          ['privacy' s+privacy.file]
+          ['cid' s+cid.file]
           ['name' s+name.file]
           :+  'tags'  %a
           %+  turn  tags.file
@@ -31,24 +33,8 @@
               ['name' s+name.tag]
               ['slatename' s+slatename.tag]
           ==
-      ==
-      ::
-        %search
-      %-  pairs
-      %+  turn  (tap:on-files files.query)
-      |=  [=cid:pantheon =file:pantheon]
-      :-  cid
-      %-  pairs
-      :~  ['cid' s+cid.file]
-          ['name' s+name.file]
-          :+  'tags'  %a
-          %+  turn  tags.file
-          |=  [=tag:pantheon]
-          %-  pairs
-          :~  ['id' s+id.tag]
-              ['name' s+name.tag]
-              ['slatename' s+slatename.tag]
-          ==
+          ['type' s+type.file]
+          ['islink' b+islink.file]
       ==
     ==
   --
