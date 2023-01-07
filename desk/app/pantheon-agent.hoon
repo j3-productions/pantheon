@@ -24,11 +24,11 @@
   %-  agent:dbug
   =|  state-0
   =*  state  -
-  %-  %+  agent:gossip
-      [1 %anybody %anybody]
-    %+  ~(put by *(map mark $-(* vase)))
-      %file
-    |=(n=* !>((grab-file n)))
+::  %-  %+  agent:gossip
+::      [1 %anybody %anybody]
+::    %+  ~(put by *(map mark $-(* vase)))
+::      %file
+::    |=(n=* !>((grab-file n)))
   ^-  agent:gall
   =<
   |_  =bowl:gall
@@ -76,14 +76,14 @@
         ::
         :: Grab file matching cid and modify privacy
         =/  nu  
-          =+  (got:on-files files cid.act) 
-          =.  privacy  priv.act  -
+          =+  (~(got by files) cid.act) 
+          =.  privacy.-  priv.act  -
         ::
         :: Prepare get request for collections
         =/  http-files=request:http
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
-        :_  this(files (put:on-files files cid.act nu))
+        :_  this(files (~(put by files) cid.act nu))
         :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
             [%i %request http-files *outbound-config:iris]
         ==
@@ -120,7 +120,7 @@
   ::
   %+  turn
     %+  skim
-      (tap:on-files files)
+      ~(tap by files)
     |=(f=[p=cid q=file] |(&(=(privacy.q.f %pals) =(owner.q.f our.bowl)) =(privacy.q.f %public)))
   |=(f=[p=cid q=file] (fact-init:io file+!>(q.f)))
   ::
@@ -140,7 +140,7 @@
   ::
   :-  ?.  &((is-new file files) =(privacy.file %public))  ~
        ~[(fact:io file+!>(file) ~[/~/gossip/source])]
-  this(files (put:on-files files cid.file file))
+  this(files (~(put by files) cid.file file))
   ::
   ++  on-arvo
     |=  [=wire =sign-arvo]
@@ -167,7 +167,7 @@
                 |=
                 f=$:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
                 ^-  file
-                =/  funit=(unit file)  (get:on-files files cid.f)
+                =/  funit=(unit file)  (~(get by files) cid.f)
                 ?~  funit 
                   [our.bowl [%private f]]
                 =+  stored-file=(need funit)
@@ -196,7 +196,7 @@
       ::  merge the fetched files with our files 
       ::  don't just overwrite so we don't lose gossip-received data
       ::
-      `this(files (uni:on-files files (malt (turn fetched-files |=([=file] [cid.file file])))))
+      `this(files (~(uni by files) (malt (turn fetched-files |=([=file] [cid.file file])))))
       ::  emit gossip cards of those files that are new and have the right privacy setting.
       ::
       ::%+  turn
@@ -267,7 +267,6 @@
         =+  res=full-file.client-response.sign-arvo
         ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
         =+  jon=(de-json:html `@t`q.data.u.res)
-        ~&  >  jon
         `this
       ==
     ==
@@ -280,7 +279,7 @@
 ++  is-new
   |=  [f=file fs=^files]
   ^-  ?(%.y %.n)
-  =/  existing=(unit file)  (get:on-files fs cid.f)
+  =/  existing=(unit file)  (~(get by fs) cid.f)
   ?~  existing
     %.y
   ?!(=((need existing) f))
@@ -290,7 +289,7 @@
   ::  grab files
   %-  malt
   %+  skim
-      (tap:on-files files)
+      ~(tap by files)
   |=  [key=cid val=file]
   ^-  @f
   ?&  ?~  name  %&  (find-name name name.val)
