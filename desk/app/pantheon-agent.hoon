@@ -3,7 +3,8 @@
 ::
 ::  TODO: Add permissions surrounding the 'key' value.
 /-  *pantheon
-/+  default-agent, dbug, agentio, *pantheon
+/+  default-agent, dbug, agentio, *pantheon, gossip
+/$  grab-file  %noun  %pantheon-file
 ::
 :: :: here
   |%
@@ -16,12 +17,18 @@
         =files
     ==
   +$  card  card:agent:gall
+  ++  on-files  ((on cid file) gth)
   --
   ::
   ::
   %-  agent:dbug
   =|  state-0
   =*  state  -
+  %-  %+  agent:gossip
+      [1 %anybody %anybody]
+    %+  ~(put by *(map mark $-(* vase)))
+      %file
+    |=(n=* !>((grab-file n)))
   ^-  agent:gall
   =<
   |_  =bowl:gall
@@ -65,14 +72,19 @@
             [%i %request http-files *outbound-config:iris]
         ==
       ::
-          %edit-metadata  :: includes privacy
-        :: Send HTTP GET REQUEST -> HANDLE IN ON-ARVO -> EMIT ARVO CARD
-      ::  `this
+           %edit-metadata  :: includes privacy
+        ::
+        :: Grab file matching cid and modify privacy
+        =/  nu  
+          =+  (got:on-files files cid.act) 
+          =.  privacy  priv.act  -
+        ::
+        :: Prepare get request for collections
         =/  http-files=request:http
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
-        :_  this
-        :~  %-  ~(arvo pass:io /edit/(scot %tas slatename.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+        :_  this(files (put:on-files files cid.act nu))
+        :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
             [%i %request http-files *outbound-config:iris]
         ==
       ==
@@ -89,18 +101,46 @@
       ``pantheon-query+!>(`query`[%files files])
     ::
     ::  %x %search name /ext public
-        [%x %search @ @ @ ~]
+        [%x %search @ @ @ @ ~]
       =/  name  -.+.+.path
       =/  ext  -.+.+.+.path
       =/  priv  -.+.+.+.+.path
-      ``pantheon-query+!>(`query`[%files (search name ext priv)])
+      =/  own=(unit @p)  (slaw %p -.+.+.+.+.+.path)
+      ``pantheon-query+!>(`query`[%files (search name ext priv own)])
     ==
   ::
-  ++  on-watch  on-watch:default
+  ++  on-watch
+  |=  =path
+  ^-  (quip card _this)
+  ?:  ?=([%http-response *] path)  [~ this]
+  ?.  =(/~/gossip/source path)
+    (on-watch:default path)
+  :_  this
+  ::  send out all of our files that either we own and set privacy to pals, or we know and privacy is public.
+  ::
+  %+  turn
+    %+  skim
+      (tap:on-files files)
+    |=(f=[p=cid q=file] |(&(=(privacy.q.f %pals) =(owner.q.f our.bowl)) =(privacy.q.f %public)))
+  |=(f=[p=cid q=file] (fact-init:io file+!>(q.f)))
   ::
   ++  on-leave  on-leave:default
   ::
-  ++  on-agent  on-agent:default
+  ++  on-agent
+  |=  [=wire =sign:agent:gall]
+  ^-  (quip card _this)
+  ?.  ?&  =(/~/gossip/gossip wire)
+          ?=(%fact -.sign)
+          =(%file p.cage.sign)
+      ==
+    ~&  [dap.bowl %strange-sign wire sign]
+    (on-agent:default wire sign)
+  =+  !<(=file q.cage.sign)
+  ::  gossip out a received file if it is public and we haven't seen it before.
+  ::
+  :-  ?.  &((is-new file files) =(privacy.file %public))  ~
+       ~[(fact:io file+!>(file) ~[/~/gossip/source])]
+  this(files (put:on-files files cid.file file))
   ::
   ++  on-arvo
     |=  [=wire =sign-arvo]
@@ -109,30 +149,42 @@
         [%files @ ~]
       ?+    sign-arvo  (on-arvo:default wire sign-arvo)
           [%iris %http-response %finished *]
-        =+  res=full-file.client-response.sign-arvo
-        ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
-        =+  jon=(de-json:html `@t`q.data.u.res)
-        ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
-        ::  TODO: Is there a better way to do this (maybe using marks)?
-        ?>  ?=([%o *] u.jon)
-        =+  cols=(~(got by p.u.jon) 'collections')
-        ?>  ?=([%a *] cols)
-        =+  col=(snag 0 p.cols)
+      =+  res=full-file.client-response.sign-arvo
+      ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
+      =+  jon=(de-json:html `@t`q.data.u.res)
+      ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
+      ::  TODO: Is there a better way to do this (maybe using marks)?
+      ::  J: purpose of this sequence is to grab 'cols'
+      ?>  ?=([%o *] u.jon)
+      ~&  >  u.jon
+      =+  cols=(~(got by p.u.jon) 'collections')
+      ?>  ?=([%a *] cols)
+      =+  cols=p.cols
+      =/  fetched-files=(list file) 
+      %-  turn  :_
+                ::  grab previous privacy setting if exists, otherwise private
+                ::  add owner as us, since we fetched from our slate.
+                |=
+                f=$:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
+                ^-  file
+                =/  funit=(unit file)  (get:on-files files cid.f)
+                ?~  funit 
+                  [our.bowl [%private f]]
+                =+  stored-file=(need funit)
+                [our.bowl [privacy.stored-file f]]
+      ^-  (list $:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n)))
+      %-  zing
+      |-
+        ?~  cols  ~
+        =+  col=i.cols
         ?>  ?=([%o *] col)
         =+  objs=(~(got by p.col) 'objects')
         ?>  ?=([%a *] objs)
-        ::  TODO: Figure out how to merge incoming `mop` with existing
-        ::  `mop` of CIDs (just replace it?, keep the overlap?)
-        ::  TODO: Get rid of empty entry that's introduced in this list
-        ::  (perhaps by the initial bunt?)
-        =/  merge=merge-strategy  %theirs  :: +<.wire
-        =;  new-files=_files  `this(files new-files)
-        %-  malt
-        %-  turn  :_  |=([=file] [cid.file file])
+        :_  $(cols t.cols)
         %+  turn  p.objs
         =,  dejs:format
         |=  obj=json
-        ;;  file
+        ;;  $:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
         %.  obj
         %-  ot
         :~  [%cid so]
@@ -140,32 +192,82 @@
             [%tags (ar (ot ~[id+so name+so slatename+so]))]
             [%type so]
             [%'isLink' bo]
-            [%'isPublic' bo]
+        ==
+      ::  merge the fetched files with our files 
+      ::  don't just overwrite so we don't lose gossip-received data
+      ::
+      `this(files (uni:on-files files (malt (turn fetched-files |=([=file] [cid.file file])))))
+      ::  emit gossip cards of those files that are new and have the right privacy setting.
+      ::
+      ::%+  turn
+      ::  %+  skim
+      ::    %+  skim
+      ::      fetched-files
+      ::    (curr |=([f=file fs=^files] %.y) *files)
+      ::  |=(f=file |(=(privacy.q.f %pals) =(privacy.q.f %public)))
+      ::|=(f=file (fact:io file+!>(f) ~[/~/gossip/source]))
+    ==
+      ::
+        [%edit @ @ @ @ ~]
+      ?+    sign-arvo  (on-arvo:default wire sign-arvo)
+          [%iris %http-response %finished *]
+        =+  res=full-file.client-response.sign-arvo
+        ?~  res  (on-arvo:default wire sign-arvo)
+        =+  jon=(de-json:html `@t`q.data.u.res)
+        ?~  jon  (on-arvo:default wire sign-arvo)
+        ?>  ?=([%o *] u.jon)
+        =+  cols=(~(got by p.u.jon) 'collections')
+        ?>  ?=([%a *] cols)
+        ::
+        ::  Grab collection with matching slate id,
+        =/  col
+        %+  snag  0
+        %+  skim
+          p.cols
+        |=  jawn=json
+        ?>  ?=([%o *] jawn)
+        =/  slate-id  (~(got by p.jawn) 'id')
+        ?>  ?=([%s *] slate-id)
+        =(p.slate-id -.+.wire)
+        ?>  ?=([%o *] col)
+        =+  objs=(~(got by p.col) 'objects')
+        ?>  ?=([%a *] objs)
+        ::
+        ::  Grab file with matching cid,
+        =/  fil
+        %+  snag  0
+        %+  skim
+        p.objs
+        |=  jawn=json
+        ?>  ?=([%o *] jawn)
+        =/  sid  (~(got by p.jawn) 'cid')
+        ?>  ?=([%s *] sid)
+        =(p.sid -.+.+.wire)
+        ?>  ?=([%o *] fil)
+        ::
+        ::  Change name of file,
+        =.  p.fil  (~(put by p.fil) 'name' [%s p=-.+.+.+.+.wire])
+        ::
+        ::  Package file into json format with 'data' key,
+        =/  updated=json  [%o (malt ~[['data' fil]])]
+        ::
+        ::  Send http request to update name of file.
+        =/  http-files=request:http
+        :^  %'POST'  'https://slate.host/api/v3/update-file'
+        ~[['content-type' 'application/json'] ['authorization' key]]
+        `(as-octt:mimes:html (en-json:html updated))
+        :_  this
+        :~  (~(arvo pass:io /reply) [%i %request http-files *outbound-config:iris])
         ==
       ==
-        [%edit @ @ @ @ ~]
+      ::
+        [%reply ~]
       ?+    sign-arvo  (on-arvo:default wire sign-arvo)
           [%iris %http-response %finished *]
         =+  res=full-file.client-response.sign-arvo
         ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
         =+  jon=(de-json:html `@t`q.data.u.res)
-        ?~  jon  (on-arvo:default wire sign-arvo)   :: json parse failure
-        ?>  ?=([%o *] u.jon)
-        =+  cols=(~(got by p.u.jon) 'collections')
-        ?>  ?=([%a *] cols)
-        =+  col=(snag 0 p.cols)
-        ?>  ?=([%o *] col)
-        =+  slatename=(~(got by p.col) 'slatename')
-        ?>  ?=([%s *] slatename)
-        ~&  >  p.slatename 
-        =+  objs=(~(got by p.col) 'objects')
-        ?>  ?=([%a *] objs)
-        ~&  >  objs
-        =+  fil=(snag 0 p.objs)
-        ~&  >  fil
-        ?>  ?=([%o *] fil)
-        ~&  >  (~(got by p.fil) 'filename')
-        ~&  >  (~(put by p.fil) 'filename' [%s p='somefile'])
+        ~&  >  jon
         `this
       ==
     ==
@@ -175,8 +277,15 @@
 ::
 ::  helper core
 |%  
+++  is-new
+  |=  [f=file fs=^files]
+  ^-  ?(%.y %.n)
+  =/  existing=(unit file)  (get:on-files fs cid.f)
+  ?~  existing
+    %.y
+  ?!(=((need existing) f))
 ++  search 
-  |=  [name=@t ext=@t vis=@ta]
+  |=  [name=@t ext=@t priv=@tas own=(unit @p)]
   ^-  ^files
   ::  grab files
   %-  malt
@@ -184,12 +293,14 @@
       (tap:on-files files)
   |=  [key=cid val=file]
   ^-  @f
-  ?&  ?:(=(vis %public) ispublic.val !ispublic.val)
-      ?|  (find-name name name.val)
-          (find-ext ext type.val)
-      ==
+  ?&  ?~  name  %&  (find-name name name.val)
+      ?~  priv  %&  =(priv privacy.val)
+      ?~  ext  %&  (find-ext ext type.val)
+      ?~  own  %&  (find-own (need own) owner.val)
   ==
-  
+ ::  Setting these as arms rather than inline because I expect them to grow
+ ::  more complex once we expand search capabilities 
 ++  find-name  |=([a=@t b=@t] =(a b))
 ++  find-ext  |=([a=@t b=@t] =(a +:(scan (trip b) ;~((glue fas) sym sym))))
+++  find-own  |=([a=@p b=@p] =(a b))
 --
