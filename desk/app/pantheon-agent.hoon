@@ -3,7 +3,8 @@
 ::
 ::  TODO: Add permissions surrounding the 'key' value.
 /-  *pantheon
-/+  default-agent, dbug, agentio, *pantheon
+/+  default-agent, dbug, agentio, *pantheon, gossip
+/$  grab-file  %noun  %pantheon-file
 ::
 :: :: here
   |%
@@ -16,12 +17,18 @@
         =files
     ==
   +$  card  card:agent:gall
+  ++  on-files  ((on cid file) gth)
   --
   ::
   ::
   %-  agent:dbug
   =|  state-0
   =*  state  -
+  %-  %+  agent:gossip
+      [1 %anybody %anybody]
+    %+  ~(put by *(map mark $-(* vase)))
+      %file
+    |=(n=* !>((grab-file n)))
   ^-  agent:gall
   =<
   |_  =bowl:gall
@@ -77,7 +84,7 @@
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
         :_  this(files (put:on-files files cid.act nu))
-        :~  %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+        :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
             [%i %request http-files *outbound-config:iris]
         ==
       ==
@@ -103,11 +110,38 @@
       ``pantheon-query+!>(`query`[%files (search name ext priv own)])
     ==
   ::
-  ++  on-watch  on-watch:default
+  ++  on-watch
+  |=  =path
+  ^-  (quip card _this)
+  ?:  ?=([%http-response *] path)  [~ this]
+  ?.  =(/~/gossip/source path)
+    (on-watch:default path)
+  :_  this
+  ::  send out all of our files that either we own and set privacy to pals, or we know and privacy is public.
+  ::
+  %+  turn
+    %+  skim
+      (tap:on-files files)
+    |=(f=[p=cid q=file] |(&(=(privacy.q.f %pals) =(owner.q.f our.bowl)) =(privacy.q.f %public)))
+  |=(f=[p=cid q=file] [%give %fact ~ %file !>(q.f)])
   ::
   ++  on-leave  on-leave:default
   ::
-  ++  on-agent  on-agent:default
+  ++  on-agent
+  |=  [=wire =sign:agent:gall]
+  ^-  (quip card _this)
+  ?.  ?&  =(/~/gossip/gossip wire)
+          ?=(%fact -.sign)
+          =(%file p.cage.sign)
+      ==
+    ~&  [dap.bowl %strange-sign wire sign]
+    (on-agent:default wire sign)
+  =+  !<(=file q.cage.sign)
+  ::  gossip out a received file if it is public and we haven't seen it before.
+  ::
+  :-  ?.  &((is-new file files) =(privacy.file %public))  ~
+      [[%give %fact [/~/gossip/source]~ %file !>(file)] ~]
+  this(files (put:on-files files cid.file file))
   ::
   ++  on-arvo
     |=  [=wire =sign-arvo]
@@ -164,6 +198,15 @@
       ::  don't just overwrite so we don't lose gossip-received data
       ::
       `this(files (uni:on-files files (malt (turn fetched-files |=([=file] [cid.file file])))))
+      ::  emit gossip cards of those files that are new and have the right privacy setting.
+      ::
+      ::%+  turn
+      ::  %+  skim
+      ::    %+  skim
+      ::      fetched-files
+      ::    (curr |=([f=file fs=^files] %.y) *files)
+      ::  |=(f=file |(=(privacy.q.f %pals) =(privacy.q.f %public)))
+      ::|=(f=file [%give %fact [/~/gossip/source]~ %file !>(f)])
     ==
       ::
         [%edit @ @ @ @ ~]
@@ -177,15 +220,13 @@
         =+  cols=(~(got by p.u.jon) 'collections')
         ?>  ?=([%a *] cols)
         ::
-        ::  Grab collection with name `slatename`,
+        ::  Grab collection with matching slate id,
         =/  col
         %+  snag  0
         %+  skim
           p.cols
         |=  jawn=json
         ?>  ?=([%o *] jawn)
-        ::
-        ::  Match slate id
         =/  slate-id  (~(got by p.jawn) 'id')
         ?>  ?=([%s *] slate-id)
         =(p.slate-id -.+.wire)
@@ -211,14 +252,13 @@
         ::  Package file into json format with 'data' key,
         =/  updated=json  [%o (malt ~[['data' fil]])]
         ::
-        ::  Send http request to update name of file,
+        ::  Send http request to update name of file.
         =/  http-files=request:http
         :^  %'POST'  'https://slate.host/api/v3/update-file'
         ~[['content-type' 'application/json'] ['authorization' key]]
         `(as-octt:mimes:html (en-json:html updated))
         :_  this
-        :~  %-  ~(arvo pass:io /reply)
-            [%i %request http-files *outbound-config:iris]
+        :~  (~(arvo pass:io /reply) [%i %request http-files *outbound-config:iris])
         ==
       ==
       ::
@@ -238,6 +278,13 @@
 ::
 ::  helper core
 |%  
+++  is-new
+  |=  [f=file fs=^files]
+  ^-  ?(%.y %.n)
+  =/  existing=(unit file)  (get:on-files fs cid.f)
+  ?~  existing
+    %.y
+  ?!(=((need existing) f))
 ++  search 
   |=  [name=@t ext=@t priv=@tas own=(unit @p)]
   ^-  ^files
