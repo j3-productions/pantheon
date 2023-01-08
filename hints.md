@@ -1,7 +1,7 @@
 # Pokes
 ::  Please do not steal my key :P
 ```
-:pantheon-agent &pantheon-action [%add-key 'SLAaa642f82-4ee6-4693-9eb7-6af34fc1d01fTE']
+:pantheon-agent &pantheon-action [%add-key 'your-key']
 :pantheon-agent &pantheon-action [%sync-files %theirs]
 
 :: edit-metadata tag-id cid new-privacy new-name
