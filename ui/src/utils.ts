@@ -61,11 +61,17 @@ export function formatFileExt(file: File | Type.ScryFile): string {
 }
 
 export const encodeQueryParams = (queryParams: Type.QueryParams): string => {
-  return encodeURIComponent(queryParams.join("/"))
+  return encodeURIComponent(queryParams
+    // .map((param: string) => (param !== "") ? param : "$")
+    .join("/")
+  );
 };
 
 export const decodeQueryParams = (queryString: string): Type.QueryParams => {
-  return (decodeURIComponent(queryString).split("/") as Type.QueryParams);
+  return ((decodeURIComponent(queryString)
+    .split("/")
+    // .map((param: string) => (param !== "$" ? param : ""))
+  ) as Type.QueryParams);
 };
 
 //////////////////////////////

@@ -33,9 +33,13 @@ export interface ScryTag {
 }
 
 export interface ScryFile {
+  owner: string;
+  privacy: PrivacySetting;
   cid: string;
   name: string;
   tags: ScryTag[];
+  type: string;
+  islink: boolean;
 }
 
 export interface ScryFiles {
@@ -68,7 +72,7 @@ export interface PokeKey extends ScryKey {}
 export type QueryParams = [string, string, string, string];
 
 export type GalleryMode = "simple" | "detail";
-export type PrivacySetting = "protected" | "private" | "public";
+export type PrivacySetting = "private" | "pals" | "public";
 export type PrivacyFilter = PrivacySetting | "";
 
 export interface FieldOption {

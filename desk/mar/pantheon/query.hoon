@@ -1,5 +1,4 @@
 /-  pantheon
-/+  *pantheon
 |_  =query:pantheon
 ++  grab
   |%
@@ -17,7 +16,7 @@
       ::
         %files
       %-  pairs
-      %+  turn  (tap:on-files files.query)
+      %+  turn  ~(tap by files.query)
       |=  [=cid:pantheon =file:pantheon]
       :-  cid
       %-  pairs
@@ -25,12 +24,14 @@
           ['privacy' s+privacy.file]
           ['cid' s+cid.file]
           ['name' s+name.file]
-          :-  %tags
-          |=  j=json
-          ^-  (list tag)
-          ?.  ?=([%a *] j)
-            ~
-          ((ar (ot ~[id+so name+so slatename+so])) j)
+          :+  'tags'  %a
+          %+  turn  tags.file
+          |=  [=tag:pantheon]
+          %-  pairs
+          :~  ['id' s+id.tag]
+              ['name' s+name.tag]
+              ['slatename' s+slatename.tag]
+          ==
           ['type' s+type.file]
           ['islink' b+islink.file]
       ==
