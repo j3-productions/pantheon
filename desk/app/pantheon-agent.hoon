@@ -24,11 +24,11 @@
   %-  agent:dbug
   =|  state-0
   =*  state  -
-  :: %-  %+  agent:gossip
-  ::     [1 %mutuals %mutuals]
-  ::   %+  ~(put by *(map mark $-(* vase)))
-  ::     %file
-  ::   |=(n=* !>((grab-file n)))
+  %-  %+  agent:gossip
+     [1 %mutuals %mutuals]
+    %+  ~(put by *(map mark $-(* vase)))
+      %file
+    |=(n=* !>((grab-file n)))
   ^-  agent:gall
   =<
   |_  =bowl:gall
@@ -84,6 +84,11 @@
           :^  %'GET'  'https://slate.host/api/v3/get'
           ~[['content-type' 'application/json'] ['Authorization' key]]  ~
         :_  this(files (~(put by files) cid.act nu))
+        ?:  &((is-new nu files) ?!(=(priv.act %private)))
+          :-  [(fact:io file+!>(nu) ~[/~/gossip/source])]
+          :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
+              [%i %request http-files *outbound-config:iris]
+          ==
         :~   %-  ~(arvo pass:io /edit/(scot %tas slate-id.act)/(scot %tas cid.act)/(scot %tas priv.act)/(scot %tas name.act))
             [%i %request http-files *outbound-config:iris]
         ==
