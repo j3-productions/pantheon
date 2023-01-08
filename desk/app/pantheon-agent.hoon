@@ -24,11 +24,11 @@
   %-  agent:dbug
   =|  state-0
   =*  state  -
-  :: %-  %+  agent:gossip
-  ::     [1 %mutuals %mutuals]
-  ::   %+  ~(put by *(map mark $-(* vase)))
-  ::     %file
-  ::   |=(n=* !>((grab-file n)))
+  %-  %+  agent:gossip
+     [1 %mutuals %mutuals]
+    %+  ~(put by *(map mark $-(* vase)))
+      %file
+    |=(n=* !>((grab-file n)))
   ^-  agent:gall
   =<
   |_  =bowl:gall
