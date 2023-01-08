@@ -75,8 +75,8 @@
            %edit-metadata  :: includes privacy
         ::
         :: Grab file matching cid and modify privacy
-        =/  nu  
-          =+  (~(got by files) cid.act) 
+        =/  nu
+          =+  (~(got by files) cid.act)
           =.  privacy.-  priv.act  -
         ::
         :: Prepare get request for collections
@@ -173,7 +173,7 @@
                 f=$:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
                 ^-  file
                 =/  funit=(unit file)  (~(get by files) cid.f)
-                ?~  funit 
+                ?~  funit
                   [our.bowl [%private f]]
                 =+  stored-file=(need funit)
                 [our.bowl [privacy.stored-file f]]
@@ -313,6 +313,10 @@
  ::  Setting these as arms rather than inline because I expect them to grow
  ::  more complex once we expand search capabilities
 ++  find-name  |=([a=@t b=@t] =(a b))
-++  find-ext  |=([a=@t b=@t] =(a +:(scan (trip b) ;~((glue fas) sym sym))))
+++  find-ext
+  |=  [a=@ b=@t]
+  ?:  =('link' b)
+    =(a b)
+  =(a +:(scan (trip b) ;~((glue fas) sym sym)))
 ++  find-own  |=([a=@p b=@p] =(a b))
 --
