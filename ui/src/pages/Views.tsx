@@ -1,7 +1,9 @@
 import React, { ChangeEvent, useState, useCallback } from 'react';
 import { Link, useSearchParams, useLoaderData } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { PlusIcon, ExclamationTriangleIcon } from '@heroicons/react/24/solid'
+import {
+  PlusIcon, QuestionMarkCircleIcon, ExclamationTriangleIcon
+} from '@heroicons/react/24/solid'
 
 import api from '../api';
 import { useKey } from '../components/KeyContext';
@@ -265,11 +267,16 @@ export const Gallery = () => {
             <div>
               <label htmlFor="privacy">Privacy Setting</label>
               <div className="flex items-center space-x-2">
-                <select onChange={onPrivacyChange}>
+                <select onChange={onPrivacyChange} disabled={true}>
                   <option value="private">Private</option>
                   <option value="pals">Pals Only</option>
+                  <option value="public">Public</option>
                 </select>
               </div>
+            </div>
+            <div className="flex flex-row justify-center">
+              <QuestionMarkCircleIcon className="h-6 w-6 text-fgs2" />
+              <p>You can edit a file after uploading.</p>
             </div>
             {/*<TagField tags={tags} onTags={setTags} />*/}
           </div>
