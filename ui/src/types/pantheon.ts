@@ -52,18 +52,16 @@ export interface ScryFiles {
 
 export interface PokeKey extends ScryKey {}
 
-// export interface PokeBoard {
-//   name: string;
-//   desc: string;
-//   tags: string[];
-//   image: string;
-//   axis: Axis;
-// }
-//
-// export interface PokeJoin {
-//   host: string;
-//   name: string;
-// }
+export interface PokeSync {
+  "merge-strategy": MergeType;
+}
+
+export interface PokeEdit {
+  "slate-id": string;
+  cid: string;
+  priv: PrivacySetting;
+  name: string;
+}
 
 /////////////////
 // Other Types //
@@ -71,6 +69,7 @@ export interface PokeKey extends ScryKey {}
 
 export type QueryParams = [string, string, string, string];
 
+export type MergeType = "ours" | "theirs" | "union" | "intersect";
 export type GalleryMode = "simple" | "detail";
 export type PrivacySetting = "private" | "pals" | "public";
 export type PrivacyFilter = PrivacySetting | "";

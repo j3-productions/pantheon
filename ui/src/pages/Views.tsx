@@ -30,15 +30,7 @@ export const Gallery = () => {
   const [find2fcid, fcid2find] = enumerateObject<Type.ScryFile>(files);
   const focusIndex = params.get("i") ? fcid2find[params.get("i") || ""] : undefined;
 
-  // NOTE: In order to force page reloads, this component sets 'u=1' and
-  // then immediately erases it. The erasure will not cause a second reload.
-  if(params.get("u") === "1") {
-    params.delete("u");
-    setParams(params.toString());
-  }
-
   // TODO: Shared component for rendering 'Type.ScryFile'.
-  // TODO: Add support for rendering the content retrieved from a '?q=' query.
   // TODO: Add support for rendering previews of gif, pdf, md
   // TODO: Perfect the scaling ratios as the screen gets wider.
   // TODO: Improve margins and centering so that margins between items
@@ -81,16 +73,29 @@ export const Gallery = () => {
       if(isViewing) {
         setIsViewing(!isViewing);
       } else {
-        // TODO: During BE upgrade/integration, change this to submit an edit
-        // poke to the Urbit back-end for this file object.
-        console.log(name);
-        console.log(privacy);
-        setIsViewing(!isViewing);
-        // TODO: Use the following to reload the page after an update:
-        //
-        // params.delete("i");
-        // params.set("u", "1");
-        // setParams(params.toString());
+        api.poke<any>({
+          app: "pantheon-agent",
+          mark: "pantheon-action",
+          json: {"edit-metadata": {
+            "slate-id": (file.tags.length > 0) ? file.tags[0].id : "TODO",
+            "cid": file.cid,
+            "priv": privacy,
+            "name": name,
+          }},
+        }).then((result: number) =>
+          new Promise(resolve => {
+            setTimeout(resolve, 2000);
+            return result;
+          })
+        ).then((result: any) => {
+          params.delete("i");
+          if(params.has("u")) {
+            params.delete("u");
+          } else {
+            params.set("u", "1");
+          }
+          setParams(params.toString());
+        })
       }
     };
     const onNameChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
@@ -202,7 +207,11 @@ export const Gallery = () => {
         // the privacy setting of the file based on the user input (values["privacy"]).
         uploadSlateFile((key as string), values["upload"][0]).then((result: any) => {
           params.delete("i");
-          params.set("u", "1");
+          if(params.has("u")) {
+            params.delete("u");
+          } else {
+            params.set("u", "1");
+          }
           setParams(params.toString());
         });
       }
