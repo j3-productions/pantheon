@@ -45,7 +45,7 @@
 ::    data=(unit ?)
 ::    old-data=(unit ?)
   ==
-+$  files        ((mop cid file) gth)
++$  files        (map cid file)
 +$  query
   $%  [%key =key]
       [%files =files]
