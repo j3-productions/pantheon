@@ -142,7 +142,7 @@
           ?=(%fact -.sign)
           =(%file p.cage.sign)
       ==
-    ~&  [dap.bowl %strange-sign wire sign]
+    :: ~&  [dap.bowl %strange-sign wire sign]
     (on-agent:default wire sign)
   =+  !<(=file q.cage.sign)
   ::  gossip out a received file if it is public and we haven't seen it before.
@@ -286,7 +286,7 @@
         =+  res=full-file.client-response.sign-arvo
         ?~  res  (on-arvo:default wire sign-arvo)   :: no body in response
         =+  jon=(de-json:html `@t`q.data.u.res)
-        ~&  >  jon
+        ~&  >  '%pantheon: updated file'  :: jon
         `this
       ==
     ==
