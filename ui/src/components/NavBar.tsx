@@ -40,10 +40,15 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
   const [queryAuthor, setQueryAuthor] = useState<string>(prevQueryParams[3]);
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
+  // FIXME: The Urbit search endpoint accepts general strings for name/ext/author,
+  // but dealing with URL encodings with these strings causes difficulties (scrying
+  // performs a form of preliminary decoding, which eliminates the utility of using
+  // Javascript's URL encoding utilities), so we restrict the character set to ensure
+  // no invalid characters are used.
   const onChange = (queryParam: string, setQueryParam: (s: string) => void) => (
     useCallback((event: ChangeEvent<HTMLInputElement>) => {
       const {value}: {value: string;} = event.target;
-      setQueryParam(value.replace(/\//g, ""));
+      setQueryParam(value.replace(/[^a-zA-Z0-9-_\.~]/g, ""));
     }, [queryParam, setQueryParam])
   );
   const onChangeName = onChange(queryName, setQueryName);
@@ -57,12 +62,10 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
   const submitQuery = useCallback(() => {
     const queryParams: Type.QueryParams =
       [queryName, queryExtension, queryPrivacy, queryAuthor];
-    if(queryParams.find(param => param !== "")) {
-      params.delete("i");
-      params.set("q", encodeQueryParams(queryParams));
-      setIsExpanded(false);
-      setParams(params.toString());
-    }
+    params.delete("i");
+    params.set("q", encodeQueryParams(queryParams));
+    setIsExpanded(false);
+    setParams(params.toString());
   }, [queryName, queryExtension, queryPrivacy, queryAuthor, params, setParams, setIsExpanded]);
   const submitFile = useCallback(() => {
     params.set("i", "");
