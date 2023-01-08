@@ -14,6 +14,7 @@
 +$  file
   $:  owner=@p
       privacy=gossip-privacy
+      collection=@t
       cid=cid
       name=@t
       tags=(list tag)

@@ -165,26 +165,29 @@
                 ::  grab previous privacy setting if exists, otherwise private
                 ::  add owner as us, since we fetched from our slate.
                 |=
-                f=$:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
+                f=$:(collection=@t cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
                 ^-  file
                 =/  funit=(unit file)  (~(get by files) cid.f)
                 ?~  funit
                   [our.bowl [%private f]]
                 =+  stored-file=(need funit)
                 [our.bowl [privacy.stored-file f]]
-      ^-  (list $:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n)))
+      ^-  (list $:(collection=@t cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n)))
       %-  zing
       |-
         ?~  cols  ~
         =+  col=i.cols
         ?>  ?=([%o *] col)
+        =+  col-id=(~(got by p.col) 'id')
+        ?>  ?=([%s *] col-id)
         =+  objs=(~(got by p.col) 'objects')
         ?>  ?=([%a *] objs)
         :_  $(cols t.cols)
         %+  turn  p.objs
         =,  dejs:format
         |=  obj=json
-        ;;  $:(cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
+        ;;  $:(collection=@t cid=cid name=@t tags=(list tag) type=@t islink=?(%.y %.n))
+        :-  p.col-id
         %.  obj
         %-  ot
         :~  [%cid so]

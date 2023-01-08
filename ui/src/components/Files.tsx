@@ -50,11 +50,9 @@ export const FilePreview = ({file}: FilePreviewProps) => {
 };
 
 export const FileView = ({file, type, className}: FileViewProps) => {
-  // TODO: Fix this hack by including the file MIME type provided by
-  // the Slate API (as object['type'], which corresponds to 'file.type').
   // TODO: Fix the hacks in here where the manually-calculated size of
   // the navbar is used to adjust the calculated height (i.e. 53px).
-  const isFileImage: boolean = (/\.(gif|jpe?g|tiff?|png|webp|bmp)$/i).test(file.name);
+  const isFileImage: boolean = file.type.startsWith("image/");
 
   switch(type) {
     case "fullscreen":
