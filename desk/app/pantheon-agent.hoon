@@ -79,6 +79,10 @@
           =+  (~(got by files) cid.act)
           =.  privacy.-  priv.act  -
         ::
+        :: Prevent editing others' files
+        ?.  =(owner.nu our.bowl)
+          !!
+        ::
         :: Prepare get request for collections
         =/  http-files=request:http
           :^  %'GET'  'https://slate.host/api/v3/get'
