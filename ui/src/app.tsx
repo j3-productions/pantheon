@@ -77,7 +77,7 @@ const AppRouter = () => {
   const reloadGallery: RRDRevalidateFun = ({currentUrl, nextUrl}) => (
     (currentUrl.pathname !== nextUrl.pathname) ||
     (currentUrl.searchParams.get("q") !== nextUrl.searchParams.get("q")) ||
-    (nextUrl.searchParams.get("u") === "1")
+    (currentUrl.searchParams.get("u") !== nextUrl.searchParams.get("u"))
   );
 
   return (
