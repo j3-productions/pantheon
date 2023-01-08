@@ -78,7 +78,7 @@ export const Gallery = () => {
           app: "pantheon-agent",
           mark: "pantheon-action",
           json: {"edit-metadata": {
-            "slate-id": (file.tags.length > 0) ? file.tags[0].id : "TODO",
+            "slate-id": file.collection,
             "cid": file.cid,
             "priv": privacy,
             "name": name,

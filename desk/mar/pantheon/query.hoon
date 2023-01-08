@@ -22,6 +22,7 @@
       %-  pairs
       :~  ['owner' (ship owner.file)]
           ['privacy' s+privacy.file]
+          ['collection' s+collection.file]
           ['cid' s+cid.file]
           ['name' s+name.file]
           :+  'tags'  %a

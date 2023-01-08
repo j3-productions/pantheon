@@ -35,6 +35,7 @@ export interface ScryTag {
 export interface ScryFile {
   owner: string;
   privacy: PrivacySetting;
+  collection: string;
   cid: string;
   name: string;
   tags: ScryTag[];
