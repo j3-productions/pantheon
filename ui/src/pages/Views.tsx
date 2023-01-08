@@ -66,7 +66,8 @@ export const Gallery = () => {
     const file: Type.ScryFile = (files[params.get("i") || ""]) as Type.ScryFile;
     const [isViewing, setIsViewing] = useState<boolean>(true);
     const [name, setName] = useState<string>(file.name);
-    const [privacy, setPrivacy] = useState<Type.PrivacySetting>("private");
+    const [privacy, setPrivacy] = useState<Type.PrivacySetting>(file.privacy);
+    const author: string = `~${file.owner}`;
 
     const {register, setError, handleSubmit, formState: {errors}} = useForm();
     const onSubmit = (values: any) => {
@@ -106,9 +107,6 @@ export const Gallery = () => {
       const {value}: {value: string;} = event.target;
       setPrivacy((value as Type.PrivacySetting));
     };
-
-    // TODO: During BE upgrade/integration, change this to be real author.
-    const author: string = `~${api.ship}`;
 
     if(mode === "simple") {
       return (
@@ -154,7 +152,7 @@ export const Gallery = () => {
               <div>
                 <label htmlFor="privacy">Privacy Setting</label>
                 <div className="flex items-center space-x-2">
-                  <select onChange={onPrivacyChange} disabled={isViewing}>
+                  <select onChange={onPrivacyChange} defaultValue={file.privacy} disabled={isViewing}>
                     <option value="private">Private</option>
                     <option value="pals">Pals Only</option>
                     <option value="public">Public</option>
