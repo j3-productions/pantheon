@@ -12,7 +12,7 @@
       slatename=@t
   ==
 +$  file
-  $:  owner=@p 
+  $:  owner=@p
       privacy=gossip-privacy
       cid=cid
       name=@t
@@ -45,11 +45,10 @@
 ::    data=(unit ?)
 ::    old-data=(unit ?)
   ==
-+$  files        ((mop cid file) gth)
++$  files        (map cid file)
 +$  query
   $%  [%key =key]
       [%files =files]
-      [%search =files]
   ==
 +$  action
   $%  [%add-key =key]

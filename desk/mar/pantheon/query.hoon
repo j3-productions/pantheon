@@ -25,14 +25,12 @@
           ['privacy' s+privacy.file]
           ['cid' s+cid.file]
           ['name' s+name.file]
-          :+  'tags'  %a
-          %+  turn  tags.file
-          |=  [=tag:pantheon]
-          %-  pairs
-          :~  ['id' s+id.tag]
-              ['name' s+name.tag]
-              ['slatename' s+slatename.tag]
-          ==
+          :-  %tags
+          |=  j=json
+          ^-  (list tag)
+          ?.  ?=([%a *] j)
+            ~
+          ((ar (ot ~[id+so name+so slatename+so])) j)
           ['type' s+type.file]
           ['islink' b+islink.file]
       ==
