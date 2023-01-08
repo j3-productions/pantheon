@@ -151,7 +151,7 @@ export const Gallery = () => {
                 <div className="flex items-center space-x-2">
                   <select onChange={onPrivacyChange} disabled={isViewing}>
                     <option value="private">Private</option>
-                    <option value="protected">Protected (Pals)</option>
+                    <option value="pals">Pals Only</option>
                     <option value="public">Public</option>
                   </select>
                 </div>
@@ -260,7 +260,7 @@ export const Gallery = () => {
               <div className="flex items-center space-x-2">
                 <select onChange={onPrivacyChange}>
                   <option value="private">Private</option>
-                  <option value="protected">Protected (Pals)</option>
+                  <option value="pals">Pals Only</option>
                 </select>
               </div>
             </div>

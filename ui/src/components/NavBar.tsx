@@ -125,7 +125,7 @@ export const SplashNavBar = ({params, setParams, mode, setMode}: NavBarProps) =>
               <select onChange={onChangePrivacy} defaultValue={queryPrivacy}>
                 <option value="">No Privacy Filter</option>
                 <option value="private">Private</option>
-                <option value="protected">Protected (Pals)</option>
+                <option value="pals">Pals Only</option>
                 <option value="public">Public</option>
               </select>
               <div className="flex flex-1 min-w-0 relative items-center">

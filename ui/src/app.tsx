@@ -10,7 +10,7 @@ import api from './api';
 import { KeyEntry, AppConfig } from './pages/Forms';
 import { Gallery } from './pages/Views';
 
-import { decodeQueryParams, getSlateSource } from './utils';
+import { decodeQueryParams, encodeQueryParams, getSlateSource } from './utils';
 import * as Type from './types/pantheon';
 import * as Const from './constants';
 
@@ -66,7 +66,9 @@ const AppRouter = () => {
         app: "pantheon-agent",
         path: (typeof queryString !== "string") ?
           "/files" :
-          "/search/" + queryParams.slice(0, 3).join("/")
+          // FIXME: This works for all simple query parameters, but once
+          // you add spaces or question marks to 'name', all bets are off.
+          "/search/" + encodeQueryParams(queryParams) + "%2F"
       })
     })
   );
