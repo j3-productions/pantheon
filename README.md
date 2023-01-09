@@ -57,7 +57,7 @@ You can use the search bar to search over file names.
 1. The search bar can also be expanded to reveal search criteria such as file extension, privacy level, and file owner. To expand the search bar, click on the downward caret to the left of the magnifying glass icon.
   ![img](https://i.imgur.com/XD4R4Gg.png)
 
-2. Once you've entered in the details of your search query, press the magnifying glass button to obtain the results
+2. Fill out all parameters you'd like filtered in your search query (the search is the logical AND of all requested parameters, e.g. extension is png AND privacy is public) and then press the magnifying glass button or hit the "Enter" key to obtain the results.
   ![img](https://i.imgur.com/1Sh2nt5.png)
 
 ### Search inside your pals network
