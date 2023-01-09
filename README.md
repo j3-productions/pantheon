@@ -61,4 +61,14 @@ You can use the search bar to search over file names.
   ![img](https://i.imgur.com/1Sh2nt5.png)
 
 ### Search inside your pals network
-TODO
+You can see files around the network if you are mutual pals with at least one other Urbit ship with `%pantheon` installed. To see a list of all public files, set the privacy filter to "Public". To see only your own files, set it to "Private". 
+  ![img](https://i.imgur.com/KB4o5Ny.png)
+
+You can search for files from a specific Urbit ship with the "Author" field.
+
+
+## Gossiping Files
+Make sure you are mutual pals with at least one other Urbit ship that has `%pantheon` installed. To gossip a file, click on it, click the info button in the top right corner, click the edit button, and set the privacy to either "Pals only" or "Public". You can only gossip files that belong to you.
+  ![img](https://i.imgur.com/U8tHnVd.png)
+  ![img](https://i.imgur.com/G9I4b0k.png)
+
