@@ -69,7 +69,7 @@ You can search for files from a specific Urbit ship with the "Search author" fie
 
 
 ## Gossiping Files
-Make sure you are mutual pals with at least one other Urbit ship that has `%pantheon` installed. To gossip a file, click on it, click the info button in the top right corner, click the edit button, and set the privacy to either "Pals Only" or "Public". You can only gossip files that belong to you.
+Make sure you are mutual pals with at least one other Urbit ship that has `%pantheon` installed. To gossip a file, click on it, toggle to view info in the top right corner, click the edit button, and set the privacy to either "Pals Only" or "Public". You can only gossip files that belong to you.
   ![img](https://i.imgur.com/U8tHnVd.png)
   ![img](https://i.imgur.com/G9I4b0k.png)
 
