@@ -1,5 +1,5 @@
 ## Introduction
-`%pantheon` is an Urbit app which allows hosting, curation, and discovery of arbitrary files, using the IPFS-based service [Slate](https://slate.host) as a method of interacting with the 30GB of free IPFS-based storage provided via Slate and all of its associated metadata. To enable file sharing and discovery across the network, `%pantheon`` performs gossip-based metadata propagation and provide associated search features. 
+`%pantheon` is an Urbit app which allows hosting, curation, and discovery of arbitrary files, using the IPFS-based service [Slate](https://slate.host) as a method of interacting with the 30GB of free IPFS-based storage provided via Slate and all of its associated metadata. To enable file sharing and discovery across the network, `%pantheon` performs gossip-based metadata propagation and provide associated search features. 
 
 ### Motivation
 Urbit's single-level store architecture has historically made it difficult to host and share memory-intensive media on the platform. While upcoming core infrastructure improvements will assuage this somewhat, it's likely that Urbit will continue to rely on externally hosted storage for data sharing into the foreseeable future. Currently, attempts to address this include Urbit's integration of Amazon S3 storage solutions, which allows uploading and displaying images in `%landscape`, and the upcoming [`%trove`](https://urbit.org/grants/trove) application, which will expand file sharing to more general forms of media and provide more granular controls for sharing. 
@@ -11,13 +11,13 @@ We hope for `%pantheon` to be a first step towards apps that enable network-wide
 ## Setup 
 
 ### Dependencies
-To obtain full functionality of `%pantheon`` the `%pals` app must also be installed. Installation instructions for both `%pals` and `%pantheon` are the same and they provided below.
+To obtain full functionality of `%pantheon` the `%pals` app must also be installed. Installation instructions for both `%pals` and `%pantheon` are the same and they provided below.
 
 ### Install via Landscape (Recommended Method)
 To install `%pantheon`:
 1. Open up Landscape app, in the search bar type: `~dister-dister-sidnym-ladrut`.
 
-2. Click on `~sidnym^ladrut'`.
+2. Click on `~sidnym^ladrut`.
 ![img](https://i.imgur.com/2rzpu0D.png)
 
 3. Under apps distributed by `~sidnym^ladrut`, click on Pantheon
@@ -50,7 +50,16 @@ In your `dojo` paste in:
 6. If your API key was valid, you should now see the files stored in your Slate.
   ![img](https://i.imgur.com/HbyzW1n.png)
 
-### Search for files on your own ship and inside your pals network 
+### Search Functionality
+## Simple Search
+You can use the search bar to search over file names.
+1. The search bar can also be expanded to reveal search criteria such as file extension, privacy level, and file owner. To expand the search bar, click on the downward carrot to the left of the magnifying glass icon.
+  ![img](https://i.imgur.com/XD4R4Gg.png)
+
+2. Once you've entered in the details of your search query, press the magnifying glass button to obtain the results
+  ![img](https://i.imgur.com/1Sh2nt5.png)
+
+## Search inside your pals network 
 TODO
 
 
