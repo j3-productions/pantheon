@@ -1,9 +1,9 @@
 :~  title+'Pantheon'
-    info+'An IPFS interface app via Slate for Urbit'
+    info+'A file storage and discovery app for Urbit'
     color+0x5e.81ac
-    glob-http+['https://ladrut.xyz/pantheon/glob-0v1.r6pn4.q1qiu.aepgf.dboso.qj8cv.glob' 0v1.r6pn4.q1qiu.aepgf.dboso.qj8cv]
+    glob-http+['https://ladrut.xyz/pantheon/glob-0v6.2pbeq.0mjl4.102iq.n90m5.orcti.glob' 0v6.2pbeq.0mjl4.102iq.n90m5.orcti]
     base+'pantheon'
-    version+[0 0 1]
+    version+[0 0 2]
     website+'https://github.com/sidnym-ladrut/pantheon'
     license+'MIT'
 ==

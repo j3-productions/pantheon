@@ -193,8 +193,9 @@ export const FocusNavBar =
     setMode((mode === "simple") ? "detail" : "simple");
   }, [mode, setMode]);
 
+  const totalDigits: number = Math.floor(Math.log10(Math.max(total, 1))) + 1;
+
   // TODO: Make this navbar match the height of the main navbar.
-  // TODO: Improve the behavior of this navbar when in mobile mode.
 
   return (
     <nav className="bg-bgp2 border-bgs1">
@@ -204,7 +205,7 @@ export const FocusNavBar =
           <button onClick={onPrev} disabled={files[0] === undefined}>
             <ChevronLeftIcon />
           </button>
-          <h2>{index + 1} / {total}</h2>
+          <h2>{String(index + 1).padStart(totalDigits, '0')} / {total}</h2>
           <button onClick={onNext} disabled={files[2] === undefined}>
             <ChevronRightIcon />
           </button>

@@ -35,7 +35,7 @@ and create a container desk `%pantheon`:
 
 ```bash
 $ cd $FAKEZOD_DESK/../../
-$ urbit -F zod -B $(([ -f urbit-v1.13.pill ] || curl -LO bootstrap.urbit.org/urbit-v1.13.pill) && echo "urbit-v1.13.pill")
+$ urbit -F zod -B $(([ -f urbit-v1.17.pill ] || curl -LO bootstrap.urbit.org/urbit-v1.17.pill) && echo "urbit-v1.17.pill")
 > |merge %pantheon our %base
 > |mount %pantheon
 $ rm -rI $FAKEZOD_DESK/*
@@ -56,7 +56,7 @@ In order to test back-end code changes, run the following commands:
 $ cd $PANTHEON_DESK
 $ rsync -uLrvP ./ $FAKEZOD_DESK/
 > |commit %pantheon
-> |install our %pantheon
+> |rein %pantheon [& %pantheon-agent]
 ```
 
 #### Front-end Workflows ####

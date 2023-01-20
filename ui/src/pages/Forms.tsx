@@ -24,8 +24,9 @@ export const KeyEntry = () => {
     <React.Fragment>
       <div className="grid gap-y-8 py-16 text-center">
         <h1>Welcome to <code>%pantheon</code>!</h1>
-        <h1>First, Sign Up for <a href="https://slate.host/_/auth?tab=signup">Slate</a>.</h1>
-        <h1>Then, Add Your <a href="https://slate.host/_/api">API Key</a>:</h1>
+        <h1>Optionally, Install <a href="/apps/grid/leap/search/~paldev/apps/~paldev/pals"><code>%pals</code></a>.</h1>
+        <h1>Then, Sign Up for <a href="https://slate.host/_/auth?tab=signup">Slate</a>.</h1>
+        <h1>Finally, Add Your <a href="https://slate.host/_/api">API Key</a>:</h1>
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-row justify-center">

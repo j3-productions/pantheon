@@ -102,7 +102,7 @@ input:disabled, div > select:disabled {
 }
 
 .image-preview {
-    @apply object-cover object-center w-full aspect-square rounded-lg border-2 border-dashed border-fgp1/60;
+    @apply object-cover object-center w-full max-w-full max-h-[calc(100vh-200px)] aspect-square rounded-lg border-2 border-dashed border-fgp1/60;
 }
 
 .icon-control {
