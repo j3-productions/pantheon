@@ -1,75 +1,136 @@
-## Introduction
-`%pantheon` is an Urbit app which allows hosting, curation, and discovery of arbitrary files, using the IPFS-based service [Slate](https://slate.host) as a method of interacting with the 30GB of free IPFS-based storage provided via Slate and all of its associated metadata. To enable file sharing and discovery across the network, `%pantheon` performs gossip-based metadata propagation and provides associated search features.
+# `%pantheon` #
 
-### Motivation
-Urbit's single-level store architecture has historically made it difficult to host and share memory-intensive media on the platform. While upcoming core infrastructure improvements will assuage this somewhat, it's likely that Urbit will continue to rely on externally hosted storage for data sharing into the foreseeable future. Currently, attempts to address this include Urbit's integration of Amazon S3 storage solutions, which allows uploading and displaying images in `%landscape`, and the upcoming [`%trove`](https://urbit.org/grants/trove) application, which will expand file sharing to more general forms of media and provide more granular controls for sharing.
+`%pantheon` is an [Urbit] app which allows hosting, curation, and discovery of
+arbitrary files, using the IPFS-based service [Slate](https://slate.host) as a
+method of interacting with the 30GB of free IPFS-based storage provided via
+Slate and all of its associated metadata. To enable file sharing and discovery
+across the network, `%pantheon` performs gossip-based metadata propagation and
+provides associated search features. The application is implemented with a
+standard [Gall agent][urbit-agent] back-end and a [React]/[Tailwind CSS]
+front-end.
 
-While the use of Amazon S3 has been a good stopgap, self-hosting the service is notoriously tricky, and S3 has inherent limits while not living up to Urbit’s decentralized ideals. And while `%trove` aims for both S3 and IPFS integration while allowing groups of ships to share and collaborate on files and folders Dropbox-style, it does not aim to provide a solution for global curation and sharing of files.
+## Demo ##
 
-We hope for `%pantheon` to be a first step towards apps that enable network-wide search and discovery on Urbit, as well as advancing IPFS as a Web3-native, decentralized option for Urbit file storage.
+![%pantheon demo](https://github.com/sidnym-ladrut/pantheon/raw/master/dat/pantheon-demo.gif)
 
-## Setup
+## Install ##
 
-### Dependencies
-To obtain full functionality of `%pantheon` the `%pals` app must also be installed. Installation instructions for both `%pals` and `%pantheon` are the same and they provided below.
+While technically an optional dependency, the `%pals` app should be installed
+with `%pantheon` to access the latter's complete functionality. Consequently,
+the installation instructions below detail how to install each of these apps.
 
-### Install via Landscape (Recommended Method)
-To install `%pantheon`:
-1. Open up Landscape app, in the search bar type: `~dister-dister-sidnym-ladrut`.
+### Grid GUI (Recommended) ###
 
-2. Click on `~sidnym^ladrut`.
-![img](https://i.imgur.com/2rzpu0D.png)
+Within your Urbit ship's web interface, navigate to the home screen
+(i.e. `/apps/grid/`) and do the following:
 
-3. Under apps distributed by `~sidnym^ladrut`, click on Pantheon
-![img](https://i.imgur.com/FQtqgw1.png)
+1. In the search bar, type in: `~dister-dister-sidnym-ladrut`.
+1. Click on `~sidnym^ladrut`.
+   ![img](https://github.com/sidnym-ladrut/quorum/raw/main/dat/install-1.png)
+1. Under apps distributed by `~sidnym^ladrut`, click on 'Pantheon.'
+   ![img](https://github.com/sidnym-ladrut/quorum/raw/main/dat/install-2.png)
+1. Press the 'Get App' button. After installation, the app tile should appear.
 
-4. Press the 'Get App' button. After installation, the app tile should appear on your grid.
-![img](https://i.imgur.com/v1dn8W9.png)
+To install `%pals`, type `~paldev` into the search bar and repeat steps 2-4
+with `~paldev` instead of `~sidnym^ladrut`.
 
-To install `%pals`, type `~paldev` in the Landscape search bar and repeat steps 2-4 with `~paldev` instead of `~sidnym^ladrut`
+### Dojo CLI ###
 
-### Install From Command Line (For Power Users)
-In your `dojo` paste in:
+Within your Urbit ship's command-line interface, enter the following command(s):
 
+```bash
+> |install ~paldev %pals
+> |install ~dister-dister-sidnym-ladrut %pantheon
 ```
-|install ~paldev %pals
-|install ~dister-dister-sidnym-ladrut %pantheon
+
+## Build/Develop ##
+
+For development, we recommend creating a [fake `~zod`][fakezod] and deploying
+the repo's `/desk` subdirectory to this ship's `%pantheon` desk. We reference the
+following paths in the workflows below:
+
+```bash
+$ export PANTHEON_UI=/path/to/pantheon/ui/
+$ export PANTHEON_DESK=/path/to/pantheon/desk/
+$ export FAKEZOD_DESK=/path/to/zod/pantheon/
 ```
 
-## Using Pantheon
+### First-time Setup ###
 
-### Hook up slate to urbit
-1. After `%pantheon` has been installed, you should be able to see the icon on your grid.
-2. In the landing page of the app is a link to sign up for Slate. If do not already have a Slate account, you can follow the instructions to obtain an account.
-3. To hook your Slate up to your urbit, you must provide it with an API key. Go to your Slate homepage at slate.host, click on your icon in the top left corner of the screen. Click on the 'API' option.
-  ![img](https://i.imgur.com/giVPKlP.png)
-4. Inside of the API Key screen, click on 'generate' to create an API key.
-  ![img](https://imgur.com/JY2jrmN.png)
-5. Paste this API key inside of the API key box.
-  ![img](https://i.imgur.com/8XOFTlW.png)
-6. If your API key was valid, you should now see the files stored in your Slate.
-  ![img](https://i.imgur.com/HbyzW1n.png)
+The following commands should be executed after each fresh clone of the project
+to set up the [Vite] and the UI development environment:
 
-## Search Functionality
+```bash
+$ cd $PANTHEON_UI
+$ npm install
+$ echo "VITE_SHIP_URL=http://127.0.0.1:8080" >> .env.local
+```
 
-### Simple Search
-You can use the search bar to search over file names.
-1. The search bar can also be expanded to reveal search criteria such as file extension, privacy level, and file owner. To expand the search bar, click on the downward caret to the left of the magnifying glass icon.
-  ![img](https://i.imgur.com/XD4R4Gg.png)
+Subsequently, run the following commands to create a new [fake `~zod`][fakezod]
+and create a container desk `%pantheon`:
 
-2. Fill out all parameters you'd like filtered in your search query (the search is the logical AND of all requested parameters, e.g. extension is png AND privacy is public) and then press the magnifying glass button or hit the "Enter" key to obtain the results.
-  ![img](https://i.imgur.com/1Sh2nt5.png)
+```bash
+$ cd $FAKEZOD_DESK/../../
+$ urbit -F zod -B $(([ -f urbit-v1.17.pill ] || curl -LO bootstrap.urbit.org/urbit-v1.17.pill) && echo "urbit-v1.17.pill")
+> |merge %pantheon our %base
+> |mount %pantheon
+$ rm -rI $FAKEZOD_DESK/*
+$ cd $PANTHEON_DESK
+$ rsync -uLrvP ./ $FAKEZOD_DESK/
+> |commit %pantheon
+> |install our %pantheon
+```
 
-### Search inside your pals network
-You can see files around the network if you are mutual pals with at least one other Urbit ship with `%pantheon` installed. To see a list of all public files, set the privacy filter to "Public". To see only your own files, set it to "Private". 
-  ![img](https://i.imgur.com/KB4o5Ny.png)
+### Development Workflows ###
 
-You can search for files from a specific Urbit ship with the "Search author" field.
-  ![img](https://i.imgur.com/0LA59BH.png)
+#### Back-end Workflows ####
+
+In order to test back-end code changes, run the following commands:
+
+```bash
+> |nuke %pantheon-agent
+$ cd $PANTHEON_DESK
+$ rsync -uLrvP ./ $FAKEZOD_DESK/
+> |commit %pantheon
+> |revive %pantheon
+```
+
+#### Front-end Workflows ####
+
+In order to test front-end code changes, run the following commands
+(these only need to be run once per development session; [Vite] hot swaps
+assets when changes are saved):
+
+```bash
+$ cd $PANTHEON_UI
+$ npm run dev
+```
+
+Also, be sure to authenticate via both the NPM web portal (default:
+`localhost:3000`) and the development ship's web portal ([fake `~zod`][fakezod]
+default: `localhost:8080`).
+
+### Deployment Workflow ###
+
+In order to test the web package deployment process for the current
+front-end build, run the following commands:
+
+```bash
+$ cd $PANTHEON_UI
+$ npm run build
+$ rsync -avL --delete ./dist/ $FAKEZOD_DESK/pantheon/
+> |commit %pantheon
+> -garden!make-glob %pantheon /pantheon
+$ cd $FAKEZOD_DESK/../.urb/put
+$ sed -r "s/(glob-http\+\[).*(\])/\1\'http:\/\/127.0.0.1:8000\/$(ls | grep glob)\' $(ls | grep glob | sed -r 's/glob-(.*)\.glob/\1/g')\2/g" -i ../../pantheon/desk.docket-0
+$ python3 -m http.server 8000
+> |commit %pantheon
+```
 
 
-## Gossiping Files
-Make sure you are mutual pals with at least one other Urbit ship that has `%pantheon` installed. To gossip a file, click on it, toggle to view info in the top right corner, click the edit button, and set the privacy to either "Pals Only" or "Public". You can only gossip files that belong to you.
-  ![img](https://i.imgur.com/U8tHnVd.png)
-  ![img](https://i.imgur.com/G9I4b0k.png)
-
+[urbit]: https://urbit.org
+[urbit-agent]: https://developers.urbit.org/reference/glossary/agent
+[fakezod]: https://developers.urbit.org/guides/core/environment#development-ships
+[react]: https://reactjs.org/
+[tailwind css]: https://tailwindcss.com/
+[vite]: https://vitejs.dev/
